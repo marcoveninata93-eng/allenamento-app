@@ -1,0 +1,1310 @@
+{
+ "version": 1,
+ "name": "Piano di allenamento — Ciclo 2 (8 settimane)",
+ "updatedAt": "2026-10-17",
+ "sessions": [
+  {
+   "id": "A",
+   "title": "Seduta A — Squat + Panca inclinata | trazioni corpo libero",
+   "subtitle": "Squat + Panca inclinata | trazioni corpo libero · ≈50'",
+   "notes": "Durata ≈50'. Tempo = discesa-pausa in basso-salita-pausa in alto (secondi). RIR = ripetizioni che restano nel serbatoio a fine serie. I link aprono la ricerca YouTube dell'esecuzione: scegli un canale affidabile.",
+   "blocks": [
+    {
+     "id": "A-warmup",
+     "title": "RISCALDAMENTO — EMOM 10' con KB 12 kg (2 giri dei 5 esercizi, uno per minuto)",
+     "type": "warmup",
+     "exercises": [
+      {
+       "id": "kettlebell-swing",
+       "code": "1",
+       "name": "Kettlebell swing",
+       "sets": 2,
+       "setsText": "×12",
+       "repsMin": 12,
+       "repsMax": 12,
+       "repsUnit": "rip",
+       "tempo": "esplosivo",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Spinta d'anca, braccia rilassate",
+       "alternative": "Hip hinge a corpo libero ×12",
+       "videoUrl": "https://www.youtube.com/results?search_query=kettlebell+swing+esecuzione+corretta",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "goblet-squat-kb",
+       "code": "2",
+       "name": "Goblet squat",
+       "sets": 2,
+       "setsText": "×8",
+       "repsMin": 8,
+       "repsMax": 8,
+       "repsUnit": "rip",
+       "tempo": "2-1-1-0",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Petto alto, gomiti dentro le ginocchia in basso",
+       "alternative": "Air squat ×12",
+       "videoUrl": "https://www.youtube.com/results?search_query=goblet+squat+kettlebell+esecuzione+corretta",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "kb-halo",
+       "code": "3",
+       "name": "KB halo",
+       "sets": 2,
+       "setsText": "×5/lato",
+       "repsMin": 5,
+       "repsMax": 5,
+       "repsUnit": "rip/lato",
+       "tempo": "lento",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Mobilità spalle: glutei e addome contratti",
+       "alternative": "Rotazioni spalle con elastico",
+       "videoUrl": "https://www.youtube.com/results?search_query=kettlebell+halo+esercizio",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "dead-bug-kb",
+       "code": "4",
+       "name": "Dead bug con KB",
+       "sets": 2,
+       "setsText": "×6/lato",
+       "repsMin": 6,
+       "repsMax": 6,
+       "repsUnit": "rip/lato",
+       "tempo": "lento",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Zona lombare sempre a terra",
+       "alternative": "Dead bug senza carico",
+       "videoUrl": "https://www.youtube.com/results?search_query=dead+bug+kettlebell+esercizio",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "plank-kb-pull-through",
+       "code": "5",
+       "name": "Plank con KB pull-through",
+       "sets": 2,
+       "setsText": "×6/lato",
+       "repsMin": 6,
+       "repsMax": 6,
+       "repsUnit": "rip/lato",
+       "tempo": "controllato",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Bacino fermo, non ruotare",
+       "alternative": "Plank 30''",
+       "videoUrl": "https://www.youtube.com/results?search_query=plank+kettlebell+pull+through",
+       "track": false,
+       "startingLoadKg": 12
+      }
+     ]
+    },
+    {
+     "id": "A-superset-a",
+     "title": "PESANTE 1 — SUPERSET A (≈17')",
+     "type": "superset",
+     "exercises": [
+      {
+       "id": "back-squat",
+       "code": "A1",
+       "name": "Back squat",
+       "sets": 4,
+       "setsText": "4 × 3-6",
+       "repsMin": 3,
+       "repsMax": 6,
+       "repsUnit": "rip",
+       "tempo": "2-1-1-0",
+       "rir": "2",
+       "rest": "60-90'' → A2",
+       "notes": "Carico e regola di progressione: foglio 'Carichi e Progressione'. Si riparte da 100 kg. Prima: vuoto ×8, 60 ×5, 80 ×3. Sicure del rack a metà coscia.",
+       "alternative": "Front squat 70-80 kg",
+       "videoUrl": "https://www.youtube.com/results?search_query=back+squat+bilanciere+esecuzione+corretta",
+       "track": true,
+       "startingLoadKg": 100,
+       "warmupSets": [
+        {
+         "kg": 20,
+         "reps": 8
+        },
+        {
+         "kg": 60,
+         "reps": 5
+        },
+        {
+         "kg": 80,
+         "reps": 3
+        }
+       ]
+      },
+      {
+       "id": "trazioni-prona",
+       "code": "A2",
+       "name": "Trazioni corpo libero presa prona",
+       "sets": 4,
+       "setsText": "4-5 × 5",
+       "repsMin": 5,
+       "repsMax": 5,
+       "repsUnit": "rip",
+       "tempo": "2-0-1-1",
+       "rir": "2",
+       "rest": "90'' → A1",
+       "notes": "Serie e zavorra della settimana: foglio 'Carichi e Progressione', tabella trazioni. La 5ª serie, quando prevista, la fai da sola dopo l'ultimo squat.",
+       "alternative": "Negative lente 3-4''",
+       "videoUrl": "https://www.youtube.com/results?search_query=trazioni+alla+sbarra+esecuzione+corretta",
+       "track": true,
+       "startingLoadKg": 0,
+       "setsMax": 5,
+       "setsFromProgression": "A.A2",
+       "bodyweight": true
+      }
+     ]
+    },
+    {
+     "id": "A-superset-b",
+     "title": "PESANTE 2 — SUPERSET B (≈14')",
+     "type": "superset",
+     "exercises": [
+      {
+       "id": "panca-inclinata-bilanciere",
+       "code": "B1",
+       "name": "Panca INCLINATA bilanciere",
+       "sets": 4,
+       "setsText": "4 × 8-12",
+       "repsMin": 8,
+       "repsMax": 12,
+       "repsUnit": "rip",
+       "tempo": "2-1-1-0",
+       "rir": "2-3",
+       "rest": "60-90'' → B2",
+       "notes": "Carico e regola di progressione: foglio 'Carichi e Progressione'. 50 kg. Schienale a 30-45°, scapole addotte, gomiti a ~45°. Senza assistenza: mai sotto RIR 2. Se la spalla sinistra fa male durante la serie, fermati e passa all'alternativa.",
+       "alternative": "Push-up con piedi rialzati (tempo 3-0-1-0)",
+       "videoUrl": "https://www.youtube.com/results?search_query=panca+inclinata+bilanciere+esecuzione+corretta",
+       "track": true,
+       "startingLoadKg": 50,
+       "painCheck": "spalla sinistra"
+      },
+      {
+       "id": "trazioni-neutra",
+       "code": "B2",
+       "name": "Trazioni corpo libero presa neutra",
+       "sets": 4,
+       "setsText": "4-5 × 5",
+       "repsMin": 5,
+       "repsMax": 5,
+       "repsUnit": "rip",
+       "tempo": "2-0-1-1",
+       "rir": "2",
+       "rest": "90'' → B1",
+       "notes": "Serie e zavorra della settimana: foglio 'Carichi e Progressione', tabella trazioni. Presa neutra: più gentile con gomiti e spalle.",
+       "alternative": "Chin-up",
+       "videoUrl": "https://www.youtube.com/results?search_query=trazioni+presa+neutra",
+       "track": true,
+       "startingLoadKg": 0,
+       "setsMax": 5,
+       "setsFromProgression": "A.B2",
+       "bodyweight": true
+      }
+     ]
+    },
+    {
+     "id": "A-circuit",
+     "title": "COMPLEMENTARI + EQUILIBRIO (≈7', a circuito)",
+     "type": "circuit",
+     "exercises": [
+      {
+       "id": "stacco-rumeno-1-gamba-kb",
+       "code": "C1",
+       "name": "Stacco rumeno monopodalico con KB",
+       "sets": 3,
+       "setsText": "3 × 10/gamba",
+       "repsMin": 10,
+       "repsMax": 10,
+       "repsUnit": "rip/gamba",
+       "tempo": "2-1-1-0",
+       "rir": "2",
+       "rest": "30''",
+       "notes": "12 kg (sei a 3×8 stabile: ora 10 rip). Bacino parallelo al pavimento.",
+       "alternative": "Con una mano appoggiata al rack",
+       "videoUrl": "https://www.youtube.com/results?search_query=stacco+rumeno+una+gamba+kettlebell",
+       "track": true,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "suitcase-carry-kb",
+       "code": "C2",
+       "name": "Suitcase carry con KB",
+       "sets": 3,
+       "setsText": "3 × 20 m/lato",
+       "repsMin": 20,
+       "repsMax": 20,
+       "repsUnit": "m/lato",
+       "tempo": "-",
+       "rir": "-",
+       "rest": "30''",
+       "notes": "12 kg. Busto dritto, non inclinarti verso la KB",
+       "alternative": "Farmer carry 2 KB",
+       "videoUrl": "https://www.youtube.com/results?search_query=suitcase+carry+kettlebell",
+       "track": true,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "rotazione-esterna-elastico",
+       "code": "C3",
+       "name": "Rotazione esterna spalla con elastico",
+       "sets": 2,
+       "setsText": "2 × 12/lato",
+       "repsMin": 12,
+       "repsMax": 12,
+       "repsUnit": "rip/lato",
+       "tempo": "2-0-1-0",
+       "rir": "-",
+       "rest": "-",
+       "notes": "Prevenzione cuffia dei rotatori",
+       "alternative": "Con manubrio leggero, sdraiato su un fianco",
+       "videoUrl": "https://www.youtube.com/results?search_query=rotazione+esterna+spalla+elastico+esercizio",
+       "track": true,
+       "startingLoadKg": null
+      }
+     ]
+    },
+    {
+     "id": "A-cooldown",
+     "title": "DEFATICAMENTO (2')",
+     "type": "cooldown",
+     "exercises": [
+      {
+       "id": "stretching-defaticamento",
+       "code": "D",
+       "name": "Stretching: dorsali appeso alla sbarra, flessori dell'anca, petto al muro",
+       "sets": 1,
+       "setsText": "1 giro",
+       "repsMin": 20,
+       "repsMax": 30,
+       "repsUnit": "s",
+       "tempo": "-",
+       "rir": "-",
+       "rest": "-",
+       "notes": "20-30'' per posizione, respirazione lenta",
+       "alternative": "-",
+       "videoUrl": "https://www.youtube.com/results?search_query=stretching+dopo+allenamento+pesi",
+       "track": false,
+       "startingLoadKg": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B",
+   "title": "Seduta B — Stacco + Military | trazioni corpo libero",
+   "subtitle": "Stacco + Military | trazioni corpo libero · ≈50'",
+   "notes": "Durata ≈50'. Tempo = discesa-pausa in basso-salita-pausa in alto (secondi). RIR = ripetizioni che restano nel serbatoio a fine serie. I link aprono la ricerca YouTube dell'esecuzione: scegli un canale affidabile.",
+   "blocks": [
+    {
+     "id": "B-warmup",
+     "title": "RISCALDAMENTO — EMOM 10' con KB 12 kg (2 giri dei 5 esercizi, uno per minuto)",
+     "type": "warmup",
+     "exercises": [
+      {
+       "id": "kb-deadlift",
+       "code": "1",
+       "name": "KB deadlift",
+       "sets": 2,
+       "setsText": "×10",
+       "repsMin": 10,
+       "repsMax": 10,
+       "repsUnit": "rip",
+       "tempo": "2-0-1-0",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Prepara lo stacco: schiena neutra",
+       "alternative": "Good morning a corpo libero",
+       "videoUrl": "https://www.youtube.com/results?search_query=stacco+da+terra+con+kettlebell+tecnica",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "kb-clean",
+       "code": "2",
+       "name": "KB clean",
+       "sets": 2,
+       "setsText": "×5/lato",
+       "repsMin": 5,
+       "repsMax": 5,
+       "repsUnit": "rip/lato",
+       "tempo": "esplosivo",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "La KB ruota attorno al polso, non sbatte sull'avambraccio",
+       "alternative": "Swing a una mano",
+       "videoUrl": "https://www.youtube.com/results?search_query=kettlebell+clean+tecnica",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "kb-press-mezzo-ginocchio",
+       "code": "3",
+       "name": "KB press mezzo in ginocchio",
+       "sets": 2,
+       "setsText": "×5/lato",
+       "repsMin": 5,
+       "repsMax": 5,
+       "repsUnit": "rip/lato",
+       "tempo": "2-0-1-0",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Attivazione spalla prima del military; leggero",
+       "alternative": "Press con elastico",
+       "videoUrl": "https://www.youtube.com/results?search_query=kettlebell+press+mezzo+in+ginocchio",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "russian-twist-kb",
+       "code": "4",
+       "name": "Russian twist con KB",
+       "sets": 2,
+       "setsText": "×10",
+       "repsMin": 10,
+       "repsMax": 10,
+       "repsUnit": "rip",
+       "tempo": "controllato",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Ruota il busto, non solo le braccia",
+       "alternative": "Senza carico",
+       "videoUrl": "https://www.youtube.com/results?search_query=russian+twist+kettlebell",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "hollow-hold",
+       "code": "5",
+       "name": "Hollow hold",
+       "sets": 2,
+       "setsText": "20''",
+       "repsMin": 20,
+       "repsMax": 20,
+       "repsUnit": "s",
+       "tempo": "-",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Lombare a terra, braccia sopra la testa",
+       "alternative": "Ginocchia piegate",
+       "videoUrl": "https://www.youtube.com/results?search_query=hollow+body+hold+tecnica",
+       "track": false,
+       "startingLoadKg": null
+      }
+     ]
+    },
+    {
+     "id": "B-superset-a",
+     "title": "PESANTE 1 — SUPERSET A (≈17')",
+     "type": "superset",
+     "exercises": [
+      {
+       "id": "stacco-da-terra",
+       "code": "A1",
+       "name": "Stacco da terra",
+       "sets": 4,
+       "setsText": "4 × 4-6",
+       "repsMin": 4,
+       "repsMax": 6,
+       "repsUnit": "rip",
+       "tempo": "2-1-1-0",
+       "rir": "2",
+       "rest": "90'' → A2",
+       "notes": "Carico e regola di progressione: foglio 'Carichi e Progressione'. Si riparte da 110 kg. Prima: 60 ×5, 90 ×3. Reset a terra a ogni ripetizione, niente rimbalzo.",
+       "alternative": "Stacco rumeno bilanciere se la schiena è affaticata",
+       "videoUrl": "https://www.youtube.com/results?search_query=stacco+da+terra+bilanciere+esecuzione+corretta",
+       "track": true,
+       "startingLoadKg": 110,
+       "warmupSets": [
+        {
+         "kg": 60,
+         "reps": 5
+        },
+        {
+         "kg": 90,
+         "reps": 3
+        }
+       ]
+      },
+      {
+       "id": "trazioni-prona",
+       "code": "A2",
+       "name": "Trazioni corpo libero presa prona",
+       "sets": 4,
+       "setsText": "4-5 × 5",
+       "repsMin": 5,
+       "repsMax": 5,
+       "repsUnit": "rip",
+       "tempo": "2-0-1-1",
+       "rir": "2",
+       "rest": "90-120'' → A1",
+       "notes": "Serie e zavorra della settimana: foglio 'Carichi e Progressione', tabella trazioni.",
+       "alternative": "Negative lente 3-4''",
+       "videoUrl": "https://www.youtube.com/results?search_query=trazioni+alla+sbarra+esecuzione+corretta",
+       "track": true,
+       "startingLoadKg": 0,
+       "setsMax": 5,
+       "setsFromProgression": "B.A2",
+       "bodyweight": true
+      }
+     ]
+    },
+    {
+     "id": "B-superset-b",
+     "title": "PESANTE 2 — SUPERSET B (≈14')",
+     "type": "superset",
+     "exercises": [
+      {
+       "id": "military-press",
+       "code": "B1",
+       "name": "Military press in piedi",
+       "sets": 4,
+       "setsText": "4 × 6-12",
+       "repsMin": 6,
+       "repsMax": 12,
+       "repsUnit": "rip",
+       "tempo": "3-0-1-0",
+       "rir": "2",
+       "rest": "60-90'' → B2",
+       "notes": "30 kg fissi, FASE 2: discesa lenta 3''. Riparti dalle ripetizioni che riesci a fare e torna fino a 4×12. Fastidio alla spalla sinistra: se aumenta durante o dopo la seduta, fermati e passa all'alternativa.",
+       "alternative": "Press con KB da mezzo in ginocchio, presa neutra, 3×8/lato",
+       "videoUrl": "https://www.youtube.com/results?search_query=military+press+in+piedi+bilanciere+esecuzione+corretta",
+       "track": true,
+       "startingLoadKg": 30,
+       "painCheck": "spalla sinistra",
+       "phase": 2
+      },
+      {
+       "id": "trazioni-supina",
+       "code": "B2",
+       "name": "Trazioni corpo libero presa supina",
+       "sets": 4,
+       "setsText": "4-5 × 5",
+       "repsMin": 5,
+       "repsMax": 5,
+       "repsUnit": "rip",
+       "tempo": "2-0-1-1",
+       "rir": "2",
+       "rest": "90'' → B1",
+       "notes": "Serie e zavorra della settimana: foglio 'Carichi e Progressione', tabella trazioni.",
+       "alternative": "Negative lente",
+       "videoUrl": "https://www.youtube.com/results?search_query=chin+up+tecnica+corretta",
+       "track": true,
+       "startingLoadKg": 0,
+       "setsMax": 5,
+       "setsFromProgression": "B.B2",
+       "bodyweight": true
+      }
+     ]
+    },
+    {
+     "id": "B-circuit",
+     "title": "COMPLEMENTARI + EQUILIBRIO (≈7', a circuito)",
+     "type": "circuit",
+     "exercises": [
+      {
+       "id": "turkish-get-up-kb",
+       "code": "C1",
+       "name": "Turkish get-up con KB",
+       "sets": 2,
+       "setsText": "2 × 2/lato",
+       "repsMin": 2,
+       "repsMax": 2,
+       "repsUnit": "rip/lato",
+       "tempo": "lento",
+       "rir": "-",
+       "rest": "30''",
+       "notes": "12 kg. Occhi sempre sulla KB, braccio bloccato",
+       "alternative": "Mezzo get-up (fino al gomito)",
+       "videoUrl": "https://www.youtube.com/results?search_query=turkish+get+up+kettlebell+tutorial",
+       "track": true,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "face-pull-elastico",
+       "code": "C2",
+       "name": "Face pull con elastico",
+       "sets": 2,
+       "setsText": "2 × 15",
+       "repsMin": 15,
+       "repsMax": 15,
+       "repsUnit": "rip",
+       "tempo": "2-1-1-0",
+       "rir": "-",
+       "rest": "30''",
+       "notes": "Prevenzione spalla",
+       "alternative": "Face pull alla carrucola",
+       "videoUrl": "https://www.youtube.com/results?search_query=face+pull+elastico+esecuzione",
+       "track": true,
+       "startingLoadKg": null
+      },
+      {
+       "id": "estensioni-polso-elastico",
+       "code": "C3",
+       "name": "Estensioni del polso con elastico",
+       "sets": 2,
+       "setsText": "2 × 15",
+       "repsMin": 15,
+       "repsMax": 15,
+       "repsUnit": "rip",
+       "tempo": "3-0-1-0",
+       "rir": "-",
+       "rest": "-",
+       "notes": "Prevenzione gomito (tennis)",
+       "alternative": "Con manubrio leggero",
+       "videoUrl": "https://www.youtube.com/results?search_query=estensori+polso+elastico+esercizio+gomito+tennista",
+       "track": true,
+       "startingLoadKg": null
+      }
+     ]
+    },
+    {
+     "id": "B-cooldown",
+     "title": "DEFATICAMENTO (2')",
+     "type": "cooldown",
+     "exercises": [
+      {
+       "id": "stretching-defaticamento",
+       "code": "D",
+       "name": "Stretching: dorsali appeso alla sbarra, flessori dell'anca, petto al muro",
+       "sets": 1,
+       "setsText": "1 giro",
+       "repsMin": 20,
+       "repsMax": 30,
+       "repsUnit": "s",
+       "tempo": "-",
+       "rir": "-",
+       "rest": "-",
+       "notes": "20-30'' per posizione, respirazione lenta",
+       "alternative": "-",
+       "videoUrl": "https://www.youtube.com/results?search_query=stretching+dopo+allenamento+pesi",
+       "track": false,
+       "startingLoadKg": null
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "C",
+   "title": "Seduta C — Affondi bulgari + Blocco giubbotto (trazioni zavorrate, push-up, dip)",
+   "subtitle": "Affondi bulgari + Blocco giubbotto · ≈50'",
+   "notes": "Durata ≈50'. Tempo = discesa-pausa in basso-salita-pausa in alto (secondi). RIR = ripetizioni che restano nel serbatoio a fine serie. I link aprono la ricerca YouTube dell'esecuzione: scegli un canale affidabile.",
+   "blocks": [
+    {
+     "id": "C-warmup",
+     "title": "RISCALDAMENTO — EMOM 10' con KB 12 kg (2 giri dei 5 esercizi, uno per minuto)",
+     "type": "warmup",
+     "exercises": [
+      {
+       "id": "kettlebell-swing",
+       "code": "1",
+       "name": "Kettlebell swing",
+       "sets": 2,
+       "setsText": "×12",
+       "repsMin": 12,
+       "repsMax": 12,
+       "repsUnit": "rip",
+       "tempo": "esplosivo",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Spinta d'anca",
+       "alternative": "Hip hinge a corpo libero",
+       "videoUrl": "https://www.youtube.com/results?search_query=kettlebell+swing+esecuzione+corretta",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "affondo-inverso-kb-rack",
+       "code": "2",
+       "name": "Affondo inverso con KB in rack",
+       "sets": 2,
+       "setsText": "×5/lato",
+       "repsMin": 5,
+       "repsMax": 5,
+       "repsUnit": "rip/lato",
+       "tempo": "2-0-1-0",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Prepara gli affondi bulgari: busto verticale",
+       "alternative": "Affondo a corpo libero",
+       "videoUrl": "https://www.youtube.com/results?search_query=affondo+inverso+kettlebell",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "suitcase-deadlift-kb",
+       "code": "3",
+       "name": "Suitcase deadlift con KB",
+       "sets": 2,
+       "setsText": "×6/lato",
+       "repsMin": 6,
+       "repsMax": 6,
+       "repsUnit": "rip/lato",
+       "tempo": "2-0-1-0",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Core antirotazione: spalle parallele al pavimento",
+       "alternative": "KB deadlift a 2 mani",
+       "videoUrl": "https://www.youtube.com/results?search_query=suitcase+deadlift+kettlebell",
+       "track": false,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "bird-dog",
+       "code": "4",
+       "name": "Bird dog",
+       "sets": 2,
+       "setsText": "×6/lato",
+       "repsMin": 6,
+       "repsMax": 6,
+       "repsUnit": "rip/lato",
+       "tempo": "lento",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Pausa 2'' in estensione",
+       "alternative": "Quadrupedia solo braccia",
+       "videoUrl": "https://www.youtube.com/results?search_query=bird+dog+esercizio+core",
+       "track": false,
+       "startingLoadKg": null
+      },
+      {
+       "id": "side-plank",
+       "code": "5",
+       "name": "Side plank",
+       "sets": 2,
+       "setsText": "20''/lato",
+       "repsMin": 20,
+       "repsMax": 20,
+       "repsUnit": "s/lato",
+       "tempo": "-",
+       "rir": "-",
+       "rest": "resto del min.",
+       "notes": "Corpo in linea, anca alta",
+       "alternative": "Su ginocchia",
+       "videoUrl": "https://www.youtube.com/results?search_query=side+plank+esecuzione+corretta",
+       "track": false,
+       "startingLoadKg": null
+      }
+     ]
+    },
+    {
+     "id": "C-legs",
+     "title": "GAMBE — AFFONDI BULGARI (≈12', senza giubbotto)",
+     "type": "superset",
+     "exercises": [
+      {
+       "id": "affondi-bulgari-bilanciere",
+       "code": "A1",
+       "name": "Affondi bulgari con bilanciere",
+       "sets": 3,
+       "setsText": "3 × 12/gamba",
+       "repsMin": 12,
+       "repsMax": 12,
+       "repsUnit": "rip/gamba",
+       "tempo": "2-1-1-0",
+       "rir": "3",
+       "rest": "60'' tra le gambe",
+       "notes": "Carico e regola di progressione: foglio 'Carichi e Progressione'. Partenza 20 kg (bilanciere vuoto) per imparare il movimento e l'equilibrio. Prendi il bilanciere dal rack, piede posteriore sulla panca, ginocchio anteriore in linea col piede. Se perdi l'equilibrio, appoggia il bilanciere sulle sicure.",
+       "alternative": "KB 12 kg in goblet + giubbotto (come nel ciclo 1)",
+       "videoUrl": "https://www.youtube.com/results?search_query=affondi+bulgari+bilanciere+esecuzione+corretta",
+       "track": true,
+       "startingLoadKg": 20
+      },
+      {
+       "id": "stacco-rumeno-1-gamba-kb",
+       "code": "A2",
+       "name": "Stacco rumeno monopodalico con KB",
+       "sets": 2,
+       "setsText": "2 × 10/gamba",
+       "repsMin": 10,
+       "repsMax": 10,
+       "repsUnit": "rip/gamba",
+       "tempo": "2-1-1-0",
+       "rir": "2",
+       "rest": "-",
+       "notes": "12 kg, tra una serie di bulgari e l'altra: equilibrio sull'altra gamba",
+       "alternative": "Con appoggio al rack",
+       "videoUrl": "https://www.youtube.com/results?search_query=stacco+rumeno+una+gamba+kettlebell",
+       "track": true,
+       "startingLoadKg": 12
+      }
+     ]
+    },
+    {
+     "id": "C-vest",
+     "title": "BLOCCO GIUBBOTTO — lo metti una volta sola e lo togli alla fine (≈20')",
+     "type": "circuit",
+     "exercises": [
+      {
+       "id": "trazioni-zavorrate-prona",
+       "code": "B1",
+       "name": "Trazioni ZAVORRATE presa prona",
+       "sets": 4,
+       "setsText": "4-5 × 4",
+       "repsMin": 4,
+       "repsMax": 4,
+       "repsUnit": "rip",
+       "tempo": "2-0-1-1",
+       "rir": "2",
+       "rest": "90'' → B2",
+       "notes": "Serie e zavorra della settimana: foglio 'Carichi e Progressione', tabella trazioni. Lo stesso peso del giubbotto vale per tutto il blocco, così non devi modificarlo.",
+       "alternative": "Corpo libero con pausa 2'' in alto",
+       "videoUrl": "https://www.youtube.com/results?search_query=trazioni+zavorrate+tecnica",
+       "track": true,
+       "startingLoadKg": 8,
+       "setsMax": 5,
+       "setsFromProgression": "C",
+       "loadFrom": "giubbotto"
+      },
+      {
+       "id": "push-up-zavorrati",
+       "code": "B2",
+       "name": "Push-up zavorrati",
+       "sets": 4,
+       "setsText": "4 × 10-15",
+       "repsMin": 10,
+       "repsMax": 15,
+       "repsUnit": "rip",
+       "tempo": "2-0-1-0",
+       "rir": "2",
+       "rest": "60'' → B1",
+       "notes": "Stesso peso del giubbotto. Mani sotto le spalle, gomiti a ~45°: è la spinta che non ti dà dolore.",
+       "alternative": "Push-up a corpo libero, tempo 3-0-1-0",
+       "videoUrl": "https://www.youtube.com/results?search_query=push+up+zavorrati+giubbotto",
+       "track": true,
+       "startingLoadKg": 8,
+       "loadFrom": "giubbotto"
+      },
+      {
+       "id": "dip-zavorrati",
+       "code": "B3",
+       "name": "Dip zavorrati al rack",
+       "sets": 3,
+       "setsText": "3 × 3-5",
+       "repsMin": 3,
+       "repsMax": 5,
+       "repsUnit": "rip",
+       "tempo": "2-1-1-0",
+       "rir": "2",
+       "rest": "90''",
+       "notes": "Stesso peso del giubbotto (8 kg: hai fatto 3-3). Se scendi sotto 3 ripetizioni o la spalla sinistra si fa sentire, toglilo e fai i dip a corpo libero 3×6-8.",
+       "alternative": "Dip a corpo libero 3×6-8",
+       "videoUrl": "https://www.youtube.com/results?search_query=dip+parallele+tecnica+corretta",
+       "track": true,
+       "startingLoadKg": 8,
+       "loadFrom": "giubbotto",
+       "painCheck": "spalla sinistra"
+      }
+     ]
+    },
+    {
+     "id": "C-balance",
+     "title": "EQUILIBRIO + PREVENZIONE (≈4', giubbotto tolto)",
+     "type": "circuit",
+     "exercises": [
+      {
+       "id": "single-leg-stand-kb-halo",
+       "code": "C1",
+       "name": "Single-leg stand su una gamba con KB halo",
+       "sets": 2,
+       "setsText": "2 × 5/lato",
+       "repsMin": 5,
+       "repsMax": 5,
+       "repsUnit": "rip/lato",
+       "tempo": "lento",
+       "rir": "-",
+       "rest": "-",
+       "notes": "In equilibrio su una gamba mentre fai l'halo: core e caviglia",
+       "alternative": "Senza KB",
+       "videoUrl": "https://www.youtube.com/results?search_query=single+leg+balance+kettlebell+halo",
+       "track": true,
+       "startingLoadKg": 12
+      },
+      {
+       "id": "rotazione-esterna-elastico",
+       "code": "C2",
+       "name": "Rotazione esterna spalla con elastico",
+       "sets": 2,
+       "setsText": "2 × 12/lato",
+       "repsMin": 12,
+       "repsMax": 12,
+       "repsUnit": "rip/lato",
+       "tempo": "2-0-1-0",
+       "rir": "-",
+       "rest": "-",
+       "notes": "Prevenzione cuffia dei rotatori",
+       "alternative": "Con manubrio leggero",
+       "videoUrl": "https://www.youtube.com/results?search_query=rotazione+esterna+spalla+elastico+esercizio",
+       "track": true,
+       "startingLoadKg": null
+      }
+     ]
+    },
+    {
+     "id": "C-cooldown",
+     "title": "DEFATICAMENTO (2')",
+     "type": "cooldown",
+     "exercises": [
+      {
+       "id": "stretching-defaticamento",
+       "code": "D",
+       "name": "Stretching: dorsali appeso alla sbarra, flessori dell'anca, petto al muro",
+       "sets": 1,
+       "setsText": "1 giro",
+       "repsMin": 20,
+       "repsMax": 30,
+       "repsUnit": "s",
+       "tempo": "-",
+       "rir": "-",
+       "rest": "-",
+       "notes": "20-30'' per posizione, respirazione lenta",
+       "alternative": "-",
+       "videoUrl": "https://www.youtube.com/results?search_query=stretching+dopo+allenamento+pesi",
+       "track": false,
+       "startingLoadKg": null
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "progression": {
+  "cycle": 2,
+  "weeks": 8,
+  "title": "CARICHI E PROGRESSIONE — Ciclo 2 (8 settimane)",
+  "method": "Doppia progressione: resta sullo stesso carico e aggiungi ripetizioni finché fai TUTTE le serie al massimo del range col RIR indicato; solo allora aumenti. Il salto minimo è 10 kg (dischi più piccoli da 5 kg).",
+  "minIncrementKg": 10,
+  "rules": [
+   {
+    "exerciseId": "back-squat",
+    "name": "Back squat",
+    "startingLoadKg": 100,
+    "setsText": "4 × 3-6",
+    "rir": "2",
+    "rule": "Quando fai 4×6 a RIR 2 → 110 kg e riparti da 4×3-4.",
+    "trigger": {
+     "sets": 4,
+     "reps": 6,
+     "rirMin": 2
+    },
+    "next": {
+     "loadKg": 110,
+     "setsText": "4 × 3-4"
+    }
+   },
+   {
+    "exerciseId": "stacco-da-terra",
+    "name": "Stacco da terra",
+    "startingLoadKg": 110,
+    "setsText": "4 × 4-6",
+    "rir": "2",
+    "rule": "Quando fai 4×6 a RIR 2 → 120 kg. Ci sei vicino: probabilmente entro 1-2 settimane.",
+    "trigger": {
+     "sets": 4,
+     "reps": 6,
+     "rirMin": 2
+    },
+    "next": {
+     "loadKg": 120
+    }
+   },
+   {
+    "exerciseId": "panca-inclinata-bilanciere",
+    "name": "Panca inclinata bilanciere",
+    "startingLoadKg": 50,
+    "setsText": "4 × 8-12",
+    "rir": "2-3",
+    "rule": "Aggiungi la 4ª serie. Quando fai 4×12 → NON salire a 60 kg (+20% con la spalla infiammata): passa a discesa lenta 3'' (3-0-1-0) e riparti fino a 4×12. Si valuta 60 kg solo quando la spalla sinistra è a posto.",
+    "trigger": {
+     "sets": 4,
+     "reps": 12
+    },
+    "next": {
+     "loadKg": 50,
+     "tempo": "3-0-1-0"
+    },
+    "blockedBy": "dolore spalla sinistra"
+   },
+   {
+    "exerciseId": "military-press",
+    "name": "Military press",
+    "startingLoadKg": 30,
+    "setsText": "4 × 6-12",
+    "rir": "2",
+    "rule": "Fase 2: discesa lenta 3'' (3-0-1-0) fino a 4×12. Poi fase 3: aggiungi 1'' di pausa in basso (3-1-1-0).",
+    "phases": [
+     {
+      "phase": 1,
+      "tempo": "2-0-1-0",
+      "status": "completata nel ciclo 1"
+     },
+     {
+      "phase": 2,
+      "tempo": "3-0-1-0",
+      "target": "4×12",
+      "current": true
+     },
+     {
+      "phase": 3,
+      "tempo": "3-1-1-0"
+     }
+    ]
+   },
+   {
+    "exerciseId": "affondi-bulgari-bilanciere",
+    "name": "Affondi bulgari bilanciere",
+    "startingLoadKg": 20,
+    "setsText": "3 × 12/gamba",
+    "rir": "3",
+    "rule": "Quando fai 3×12 stabile e senza perdere l'equilibrio → +10 kg (un disco da 5 per lato) e torna a 3×10-12.",
+    "trigger": {
+     "sets": 3,
+     "reps": 12
+    },
+    "next": {
+     "loadKgDelta": 10,
+     "setsText": "3 × 10-12"
+    }
+   },
+   {
+    "exerciseId": "stacco-rumeno-1-gamba-kb",
+    "name": "Stacco rumeno 1 gamba KB",
+    "startingLoadKg": 12,
+    "setsText": "3 × 10/gamba",
+    "rir": "2",
+    "rule": "Quando fai 3×10 facile → tempo 3-1-1-0 (le KB sono da 12 kg).",
+    "trigger": {
+     "sets": 3,
+     "reps": 10
+    },
+    "next": {
+     "tempo": "3-1-1-0"
+    }
+   },
+   {
+    "exerciseId": "push-up-zavorrati",
+    "name": "Push-up zavorrati",
+    "startingLoadKg": null,
+    "startingLoadText": "come giubbotto",
+    "setsText": "4 × 10-15",
+    "rir": "2",
+    "rule": "Segue il peso del giubbotto delle trazioni.",
+    "loadFrom": "giubbotto"
+   },
+   {
+    "exerciseId": "dip-zavorrati",
+    "name": "Dip zavorrati",
+    "startingLoadKg": null,
+    "startingLoadText": "come giubbotto",
+    "setsText": "3 × 3-5",
+    "rir": "2",
+    "rule": "Se il giubbotto sale e fai meno di 3 rip, fai i dip a corpo libero.",
+    "loadFrom": "giubbotto",
+    "fallback": "Dip a corpo libero 3×6-8"
+   }
+  ],
+  "pullUps": {
+   "title": "TRAZIONI — volume e zavorra aumentano gradualmente",
+   "legend": "Seduta A: A2 = prona, B2 = neutra · Seduta B: A2 = prona, B2 = supina · Seduta C: B1 zavorrate prona (giubbotto)",
+   "weeks": [
+    {
+     "weeks": [
+      1,
+      2
+     ],
+     "label": "1-2",
+     "A": {
+      "A2": {
+       "sets": 4,
+       "reps": 5
+      },
+      "B2": {
+       "sets": 4,
+       "reps": 5
+      }
+     },
+     "B": {
+      "A2": {
+       "sets": 4,
+       "reps": 5
+      },
+      "B2": {
+       "sets": 4,
+       "reps": 5
+      }
+     },
+     "C": {
+      "sets": 4,
+      "reps": 4
+     },
+     "vestKg": 8,
+     "text": {
+      "A": "4×5 + 4×5",
+      "B": "4×5 + 4×5",
+      "C": "4×4"
+     },
+     "note": "Come il ciclo 1 ma con una serie in più per superset.",
+     "weeklyReps": 96
+    },
+    {
+     "weeks": [
+      3,
+      4
+     ],
+     "label": "3-4",
+     "A": {
+      "A2": {
+       "sets": 5,
+       "reps": 5
+      },
+      "B2": {
+       "sets": 4,
+       "reps": 5
+      }
+     },
+     "B": {
+      "A2": {
+       "sets": 5,
+       "reps": 5
+      },
+      "B2": {
+       "sets": 4,
+       "reps": 5
+      }
+     },
+     "C": {
+      "sets": 5,
+      "reps": 4
+     },
+     "vestKg": 8,
+     "text": {
+      "A": "5×5 + 4×5",
+      "B": "5×5 + 4×5",
+      "C": "5×4"
+     },
+     "note": "+1 serie a corpo libero e +1 serie zavorrata.",
+     "weeklyReps": 110
+    },
+    {
+     "weeks": [
+      5,
+      6
+     ],
+     "label": "5-6",
+     "A": {
+      "A2": {
+       "sets": 5,
+       "reps": 5
+      },
+      "B2": {
+       "sets": 5,
+       "reps": 5
+      }
+     },
+     "B": {
+      "A2": {
+       "sets": 5,
+       "reps": 5
+      },
+      "B2": {
+       "sets": 5,
+       "reps": 5
+      }
+     },
+     "C": {
+      "sets": 4,
+      "reps": 4
+     },
+     "vestKg": 10,
+     "text": {
+      "A": "5×5 + 5×5",
+      "B": "5×5 + 5×5",
+      "C": "4×4"
+     },
+     "note": "Sale la zavorra, scende di una serie per assorbirla.",
+     "weeklyReps": 116
+    },
+    {
+     "weeks": [
+      7,
+      8
+     ],
+     "label": "7-8",
+     "A": {
+      "A2": {
+       "sets": 5,
+       "reps": 5
+      },
+      "B2": {
+       "sets": 5,
+       "reps": 5
+      }
+     },
+     "B": {
+      "A2": {
+       "sets": 5,
+       "reps": 5
+      },
+      "B2": {
+       "sets": 5,
+       "reps": 5
+      }
+     },
+     "C": {
+      "sets": 5,
+      "reps": 4
+     },
+     "vestKg": 10,
+     "text": {
+      "A": "5×5 + 5×5",
+      "B": "5×5 + 5×5",
+      "C": "5×4"
+     },
+     "note": "Se 5×4 a 10 kg è a RIR 2, nel prossimo ciclo si passa a 12 kg.",
+     "weeklyReps": 120
+    }
+   ],
+   "weeklyRepsText": "da ≈96 (sett. 1-2) a ≈120 (sett. 7-8)",
+   "weeklyRepsNote": "weeklyReps calcolato: il foglio riporta solo ≈96 e ≈120; 110 e 116 sono derivati."
+  },
+  "generalNotes": [
+   "Gomiti o spalla che protestano: togli prima una serie a corpo libero per superset, poi riduci la zavorra. Non spingere sul dolore.",
+   "Il giubbotto si mette solo nella Seduta C e resta addosso per tutto il blocco (trazioni → push-up → dip): stesso peso per tutti e tre.",
+   "Distribuzione: A → B → C con almeno un giorno tra le sedute.",
+   "Scarico a sensazione: se un lift peggiora per 2 sedute di fila, fai una settimana con metà delle serie e lo stesso carico."
+  ],
+  "deload": {
+   "trigger": "lift peggiora per 2 sedute di fila",
+   "action": "una settimana con metà delle serie e lo stesso carico"
+  },
+  "schedule": {
+   "order": [
+    "A",
+    "B",
+    "C"
+   ],
+   "minRestDaysBetween": 1
+  },
+  "shoulderNotes": [
+   "Panca piana tolta. Panca inclinata, push-up e military restano solo finché non fanno male durante o dopo la seduta.",
+   "Se l'infiammazione non migliora in 1-2 settimane, o se il dolore compare a riposo o di notte, falla vedere a un fisioterapista o a un medico."
+  ],
+  "monitoring": {
+   "title": "MONITORAGGIO SETTIMANALE — Ciclo 2",
+   "instructions": "Scrivi carico e ripetizioni come nel diario, es. 100: 5-5-5-4. Peso: media settimanale delle pesate al mattino a digiuno.",
+   "columns": [
+    "Settimana",
+    "Peso medio (kg)",
+    "Squat",
+    "Stacco",
+    "Panca inclinata",
+    "Military",
+    "Bulgari",
+    "Giubbotto trazioni",
+    "Note (spalla sx, gomiti, energia)"
+   ],
+   "rows": [
+    {
+     "week": 1,
+     "bodyWeightKg": null,
+     "squat": null,
+     "stacco": null,
+     "pancaInclinata": null,
+     "military": null,
+     "bulgari": null,
+     "giubbottoKg": null,
+     "note": null
+    },
+    {
+     "week": 2,
+     "bodyWeightKg": null,
+     "squat": null,
+     "stacco": null,
+     "pancaInclinata": null,
+     "military": null,
+     "bulgari": null,
+     "giubbottoKg": null,
+     "note": null
+    },
+    {
+     "week": 3,
+     "bodyWeightKg": null,
+     "squat": null,
+     "stacco": null,
+     "pancaInclinata": null,
+     "military": null,
+     "bulgari": null,
+     "giubbottoKg": null,
+     "note": null
+    },
+    {
+     "week": 4,
+     "bodyWeightKg": null,
+     "squat": null,
+     "stacco": null,
+     "pancaInclinata": null,
+     "military": null,
+     "bulgari": null,
+     "giubbottoKg": null,
+     "note": null
+    },
+    {
+     "week": 5,
+     "bodyWeightKg": null,
+     "squat": null,
+     "stacco": null,
+     "pancaInclinata": null,
+     "military": null,
+     "bulgari": null,
+     "giubbottoKg": null,
+     "note": null
+    },
+    {
+     "week": 6,
+     "bodyWeightKg": null,
+     "squat": null,
+     "stacco": null,
+     "pancaInclinata": null,
+     "military": null,
+     "bulgari": null,
+     "giubbottoKg": null,
+     "note": null
+    },
+    {
+     "week": 7,
+     "bodyWeightKg": null,
+     "squat": null,
+     "stacco": null,
+     "pancaInclinata": null,
+     "military": null,
+     "bulgari": null,
+     "giubbottoKg": null,
+     "note": null
+    },
+    {
+     "week": 8,
+     "bodyWeightKg": null,
+     "squat": null,
+     "stacco": null,
+     "pancaInclinata": null,
+     "military": null,
+     "bulgari": null,
+     "giubbottoKg": null,
+     "note": null
+    }
+   ]
+  }
+ }
+}

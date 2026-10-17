@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#0e1117; --card:#161b26; --line:#2a3142; --fg:#f2f4f8; --mut:#9aa3b5; --acc:#FF7A1A; --ok:#22c55e; --warn:#f59e0b; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin:0; padding:0; background:transparent; color:var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { padding: 2px 1px 4px; }
+  table { width:100%; border-collapse: separate; border-spacing: 0 4px; font-size:15px; }
+  th { font-size:12px; color:var(--mut); font-weight:600; text-align:center; padding:0 2px; }
+  td { text-align:center; padding:8px 2px; background:var(--card); font-variant-numeric: tabular-nums; }
+  td:first-child { border-radius:10px 0 0 10px; font-weight:700; width:44px; }
+  td:last-child { border-radius:0 10px 10px 0; width:44px; font-size:18px; }
+  td.prev { color:var(--mut); font-size:13px; }
+  tr.row { cursor:pointer; }
+  tr.sel td { background:#24314a; box-shadow: inset 0 1px 0 var(--acc), inset 0 -1px 0 var(--acc); }
+  tr.sel td:first-child { box-shadow: inset 1px 1px 0 var(--acc), inset 0 -1px 0 var(--acc); }
+  tr.sel td:last-child { box-shadow: inset -1px 1px 0 var(--acc), inset 0 -1px 0 var(--acc); }
+  tr.done td { color:#c9f7da; }
+  tr.extra td:first-child::after { content:"+"; color:var(--acc); font-size:11px; vertical-align:super; }
+  .ed { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; margin-top:4px; }
+  .edt { font-size:13px; color:var(--mut); margin-bottom:6px; }
+  .grp { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+  .grp label { width:62px; font-size:13px; color:var(--mut); line-height:1.1; }
+  .grp button { width:64px; height:52px; border-radius:12px; border:1px solid var(--line); background:#222938; color:var(--fg); font-size:18px; font-weight:700; touch-action:manipulation; }
+  .grp button:active { background:#2f3850; }
+  .grp input { flex:1; min-width:0; height:52px; border-radius:12px; border:1px solid var(--line); background:#0b0f16; color:var(--fg); font-size:24px; font-weight:800; text-align:center; font-variant-numeric: tabular-nums; }
+  .grp .fixed { flex:1; text-align:center; font-size:20px; font-weight:800; }
+  .ok { width:100%; height:60px; border:0; border-radius:14px; background:var(--acc); color:#151515; font-size:19px; font-weight:800; touch-action:manipulation; }
+  .ok:active { filter:brightness(.9); }
+  .ok.upd { background:#3b82f6; color:#fff; }
+  .row2 { display:flex; gap:6px; margin-top:8px; }
+  .row2 button { flex:1; height:48px; border-radius:12px; border:1px solid var(--line); background:#1d2330; color:var(--fg); font-size:15px; font-weight:600; }
+  .alldone { text-align:center; padding:10px 6px; color:#c9f7da; font-weight:700; }
+  .em { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; display:flex; gap:10px; align-items:center; }
+  .em .t { font-size:34px; font-weight:800; font-variant-numeric:tabular-nums; min-width:86px; text-align:center; }
+  .em .i { flex:1; min-width:0; } .em .m { font-size:13px; color:var(--mut); }
+  .em .n { font-size:17px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .em .nx { font-size:12px; color:var(--mut); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .em button { height:52px; min-width:84px; border-radius:12px; border:0; background:var(--acc); color:#151515; font-size:16px; font-weight:800; }
+  .em button.s { background:#262c3a; color:#fff; border:1px solid #3a4152; }
+  .bridge { font-size:12px; color:var(--mut); padding:2px 4px; }
+  .bridge b { color:var(--fg); }
+</style>
+<script src="./shared.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(function () {
+  "use strict";
+  const L = window.AllenLib;
+  const root = document.getElementById("root");
+  let A = null;            // ultimi argomenti ricevuti
+  let sel = null;          // indice serie selezionata (0-based)
+  let edit = null;         // {kg, reps} valori nell'editor
+  let lastSent = {};       // id evento → ms ultimo invio
+  let mounted = false, pingTimer = null, resendTimer = null;
+
+  function fmt(v) {
+    if (v === null || v === undefined || v === "") return "–";
+    const f = Number(v);
+    return Number.isInteger(f) ? String(f) : String(Math.round(f * 100) / 100);
+  }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+  // ================================================================ modalità SERIE
+  function myEvents() {
+    return L.outbox().filter(e => e.draftId === A.draftId && e.exKey === A.exKey);
+  }
+  // stato = argomenti del server + eventi ancora in coda sul telefono (più recenti)
+  function mergedSets() {
+    const sets = (A.sets || []).map(s => Object.assign({}, s));
+    const evs = myEvents().sort((a, b) => a.t - b.t);
+    for (const e of evs) {
+      if (e.type === "add") {
+        while (sets.length < e.n) { const p = sets[sets.length - 1] || {}; sets.push({ n: sets.length + 1, kg: p.kg, reps: p.reps, done: false, t: 0, extra: true }); }
+      } else if (e.type === "remove") {
+        if (sets.length === e.n && !sets[sets.length - 1].done) sets.pop();
+      } else if (e.type === "set") {
+        while (sets.length < e.n) { const p = sets[sets.length - 1] || {}; sets.push({ n: sets.length + 1, kg: p.kg, reps: p.reps, done: false, t: 0, extra: true }); }
+        const s = sets[e.n - 1];
+        if (e.t > (s.t || 0)) { s.kg = e.kg; s.reps = e.reps; s.done = e.done; s.t = e.t; s.local = true; }
+      }
+    }
+    return sets;
+  }
+  function cleanupAcked() {
+    const ack = A.ackT || {};
+    const n = (A.sets || []).length;
+    const list = L.outbox();
+    const keep = list.filter(e => {
+      if (e.draftId !== A.draftId || e.exKey !== A.exKey) return true;
+      if (!A.synced) return true;
+      if (e.type === "set") return !(ack[String(e.n)] >= e.t);
+      if (e.type === "add") return n < e.n;
+      if (e.type === "remove") return n >= e.n;
+      return false;
+    });
+    if (keep.length !== list.length) L.saveOutbox(keep);
+  }
+  function unsent() {
+    // eventi che il server non ha ancora applicato
+    const known = {};
+    (A.sets || []).forEach(s => { known[s.n] = s.t || 0; });
+    const n = (A.sets || []).length;
+    return myEvents().filter(e => {
+      if (e.type === "set") return (known[e.n] || 0) < e.t;
+      if (e.type === "add") return n < e.n;
+      if (e.type === "remove") return n >= e.n;
+      return false;
+    });
+  }
+  function sendPending(force) {
+    const list = unsent();
+    if (!list.length) return;
+    const now = Date.now();
+    const due = list.filter(e => force || !lastSent[e.id] || now - lastSent[e.id] > 4000);
+    if (!due.length) {
+      clearTimeout(resendTimer);
+      resendTimer = setTimeout(() => sendPending(false), 4200);
+      return;
+    }
+    list.forEach(e => { lastSent[e.id] = now; });
+    L.setValue({ events: list, nonce: now });
+    clearTimeout(resendTimer);
+    resendTimer = setTimeout(() => sendPending(false), 4200);
+  }
+  function emit(ev) {
+    ev.draftId = A.draftId; ev.exKey = A.exKey; ev.t = Date.now();
+    ev.id = [A.draftId, A.exKey, ev.type, ev.n, ev.t].join("|");
+    L.pushEvent(ev);              // 1) prima sul telefono
+    lastSent[ev.id] = 0;
+    sendPending(true);            // 2) poi al server (→ GitHub)
+  }
+  function selectDefault(sets) {
+    const i = sets.findIndex(s => !s.done);
+    return i === -1 ? null : i;
+  }
+  function setEditFrom(s) { edit = { kg: s.kg, reps: s.reps }; }
+
+  function renderSets() {
+    const sets = mergedSets();
+    if (sel === null || sel >= sets.length) { sel = selectDefault(sets); edit = null; }
+    if (sel !== null && !edit) setEditFrom(sets[sel]);
+    const ack = A.ackT || {};
+    const showKg = A.kgMode !== "none";
+    let h = '<table><tr><th>Serie</th><th>Precedente</th>' + (showKg ? '<th>' + (A.kgMode === "bw" ? "zav. kg" : "kg") + '</th>' : '') + '<th>' + esc(A.unit || "rip") + '</th><th>✓</th></tr>';
+    sets.forEach((s, i) => {
+      const pk = s.prev ? s.prev.kg : null;
+      const prev = s.prev ? ((showKg && pk !== null && pk !== undefined && !(A.kgMode === "bw" && Number(pk) === 0) ? fmt(pk) + "×" : "") + fmt(s.prev.reps)) : "–";
+      const synced = s.done && A.synced && ack[String(s.n)] >= (s.t || 0) && !s.local;
+      const icon = s.done ? (synced ? "✅" : "⏳") : "○";
+      h += '<tr class="row' + (i === sel ? " sel" : "") + (s.done ? " done" : "") + (s.extra ? " extra" : "") + '" data-i="' + i + '">' +
+        '<td>' + s.n + '</td><td class="prev">' + prev + '</td>' + (showKg ? '<td>' + fmt(s.kg) + '</td>' : '') +
+        '<td>' + fmt(s.reps) + '</td><td title="' + (s.done ? (synced ? "salvata" : "sul telefono, in invio") : "da fare") + '">' + icon + '</td></tr>';
+    });
+    h += '</table>';
+    if (sel !== null) {
+      const s = sets[sel];
+      h += '<div class="ed"><div class="edt">Serie ' + s.n + ' di ' + sets.length + (s.extra ? " · serie extra (oltre il previsto)" : "") + (s.done ? " · già fatta: puoi correggerla" : "") + (A.restLabel && !s.done && A.restSec ? " · dopo: recupero, " + esc(A.restLabel) : "") + '</div>';
+      if (A.kgMode === "vest") {
+        h += '<div class="grp"><label>giubbotto</label><div class="fixed">' + fmt(edit.kg) + ' kg</div></div>';
+      } else if (showKg) {
+        h += '<div class="grp"><label>' + (A.kgMode === "bw" ? "zavorra<br>kg" : "kg") + '</label><button data-a="kg-">−' + fmt(A.kgStep) + '</button>' +
+          '<input id="kg" type="number" inputmode="decimal" step="' + A.kgStep + '" min="0" value="' + (edit.kg ?? "") + '"><button data-a="kg+">+' + fmt(A.kgStep) + '</button></div>';
+      }
+      h += '<div class="grp"><label>' + esc(A.unit || "rip") + '</label><button data-a="r-">−1</button>' +
+        '<input id="reps" type="number" inputmode="numeric" step="1" min="0" value="' + (edit.reps ?? "") + '"><button data-a="r+">+1</button></div>';
+      const bwFree = A.kgMode === "bw" && !Number(edit.kg);
+      const lab = (showKg && edit.kg !== null && edit.kg !== undefined && !bwFree ? fmt(edit.kg) + " kg × " : "") + fmt(edit.reps) + " " + esc(A.unit || "rip") + (A.kgMode === "bw" && Number(edit.kg) ? " (zavorra)" : "");
+      h += '<button class="ok' + (s.done ? " upd" : "") + '" data-a="ok">✓ ' + (s.done ? "Aggiorna" : "Serie") + " " + s.n + " · " + lab + '</button>';
+      h += '<div class="row2">' + (s.done ? '<button data-a="undo">↺ Segna non fatta</button>' : '') +
+        (A.canAdd !== false ? '<button data-a="add">+ Serie extra</button>' : '') +
+        (sets.length > 1 && sel === sets.length - 1 && !s.done ? '<button data-a="rm">− Togli serie</button>' : '') + '</div></div>';
+    } else {
+      h += '<div class="alldone">Tutte le serie fatte 💪 — tocca una serie per correggerla</div>';
+      if (A.canAdd !== false) h += '<div class="row2"><button data-a="add">+ Serie extra</button></div>';
+    }
+    root.innerHTML = h;
+    L.setHeight(Math.ceil(root.getBoundingClientRect().height) + 6);
+  }
+
+  function readInputs() {
+    const kg = document.getElementById("kg"), reps = document.getElementById("reps");
+    if (kg && kg.value !== "") edit.kg = Math.max(0, Number(String(kg.value).replace(",", ".")));
+    if (reps && reps.value !== "") edit.reps = Math.max(0, Math.round(Number(reps.value)));
+  }
+
+  root.addEventListener("input", function () { if (A && A.mode === "sets" && edit) readInputs(); });
+  root.addEventListener("click", function (e) {
+    if (!A) return;
+    if (A.mode !== "sets") return;
+    const t = e.target.closest("[data-a],tr.row");
+    if (!t) return;
+    const sets = mergedSets();
+    if (t.matches("tr.row")) { sel = Number(t.getAttribute("data-i")); setEditFrom(sets[sel]); renderSets(); return; }
+    const a = t.getAttribute("data-a");
+    if (edit) readInputs();
+    const step = Number(A.kgStep || 2.5);
+    if (a === "kg-") edit.kg = Math.max(0, Math.round(((Number(edit.kg) || 0) - step) * 100) / 100);
+    if (a === "kg+") edit.kg = Math.round(((Number(edit.kg) || 0) + step) * 100) / 100;
+    if (a === "r-") edit.reps = Math.max(0, (Number(edit.reps) || 0) - 1);
+    if (a === "r+") edit.reps = (Number(edit.reps) || 0) + 1;
+    if (a === "ok") {
+      const s = sets[sel];
+      const wasDone = s.done;
+      emit({ type: "set", n: s.n, kg: A.kgMode === "none" ? null : edit.kg, reps: edit.reps, done: true });
+      if (!wasDone && A.restSec) L.startRest(A.restSec, A.restLabel, { sound: A.sound, vibrate: A.vibrate, wakeLock: A.wakeLock });
+      sel = null; edit = null;
+    }
+    if (a === "undo") { const s = sets[sel]; emit({ type: "set", n: s.n, kg: s.kg, reps: s.reps, done: false }); }
+    if (a === "add") { emit({ type: "add", n: sets.length + 1 }); sel = sets.length; edit = { kg: (sets[sets.length - 1] || {}).kg, reps: (sets[sets.length - 1] || {}).reps }; }
+    if (a === "rm") { emit({ type: "remove", n: sets.length }); sel = null; edit = null; }
+    renderSets();
+  });
+
+  // ================================================================ modalità BRIDGE
+  // Copia della bozza sul telefono + reinvio della coda + ping per ritentare GitHub.
+  function renderBridge() {
+    const DK = "allen_draft_v1";
+    if (!mounted) {
+      mounted = true;
+      L.installTimer();
+      const stored = L.lsGet(DK, null);
+      const caps = (window.parent.__allenRest || {}).caps || {};
+      L.setValue({ type: "mount", stored: stored, outbox: L.outbox(), caps: caps, nonce: Date.now() });
+    }
+    if (A.clear) {
+      if (!A.draftId) { try { L.lsDel("allen_rest"); } catch (e) {} }
+      const st = L.lsGet(DK, null);
+      if (st && st.id === A.clear) L.lsDel(DK);
+      L.saveOutbox(L.outbox().filter(e => e.draftId !== A.clear));
+    }
+    if (A.draft) {
+      const st = L.lsGet(DK, null);
+      if (!st || st.id !== A.draft.id || (A.draft.rev || 0) >= (st.rev || 0)) L.lsSet(DK, A.draft);
+    }
+    // pulizia degli eventi già salvati su GitHub
+    if (A.draftId && A.synced) {
+      const ack = A.ackT || {};
+      const list = L.outbox();
+      const keep = list.filter(e => !(e.draftId === A.draftId && e.type === "set" && ack[e.exKey + "|" + e.n] >= e.t));
+      if (keep.length !== list.length) L.saveOutbox(keep);
+    }
+    // reinvio di ciò che il server non ha (es. dopo una riconnessione)
+    let resend = [];
+    if (A.draftId) {
+      const known = A.known || {};
+      resend = L.outbox().filter(e => e.draftId === A.draftId && e.type === "set" && (known[e.exKey + "|" + e.n] || 0) < e.t);
+      const now = Date.now();
+      const due = resend.filter(e => !lastSent[e.id] || now - lastSent[e.id] > 5000);
+      if (due.length) {
+        resend.forEach(e => { lastSent[e.id] = now; });
+        L.setValue({ type: "events", events: resend, nonce: now });
+      }
+    }
+    clearTimeout(pingTimer);
+    if (A.pendingServer > 0 || resend.length) {
+      pingTimer = setTimeout(() => L.setValue({ type: "ping", nonce: Date.now() }), A.retryMs || 12000);
+    }
+    const q = L.outbox().filter(e => !A.draftId || e.draftId === A.draftId).length;
+    root.innerHTML = A.visible === false ? "" :
+      '<div class="bridge">📱 Copia sul telefono: <b>' + (A.draft || L.lsGet(DK, null) ? "ok" : "–") + '</b> · in coda: <b>' + q + '</b></div>';
+    L.setHeight(A.visible === false ? 0 : Math.ceil(root.getBoundingClientRect().height) + 4);
+  }
+
+  window.addEventListener("online", function () { if (A && A.mode === "bridge") L.setValue({ type: "ping", nonce: Date.now() }); else if (A) sendPending(true); });
+
+  // ================================================================ modalità EMOM
+  // Timer a intervalli di 1': a ogni minuto completato spunta da solo l'esercizio di quel minuto.
+  let emIv = null, emLast = -1, emCtx = null, emSentDone = -1;
+  function emGet() { return L.lsGet(A.lsKey, null); }
+  function emBeep(n) {
+    try {
+      if (!emCtx) return;
+      for (let i = 0; i < n; i++) {
+        const o = emCtx.createOscillator(), g = emCtx.createGain(), t = emCtx.currentTime + i * 0.3;
+        o.frequency.value = i === n - 1 ? 1175 : 880;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.6, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+        o.connect(g); g.connect(emCtx.destination); o.start(t); o.stop(t + 0.25);
+      }
+    } catch (e) {}
+  }
+  function emFmt(s) { const m = Math.floor(s / 60), r = s % 60; return m + ":" + (r < 10 ? "0" : "") + r; }
+  function emTick() {
+    const names = A.names || [], N = names.length || 1, tot = (A.minutes || 10) * 60, v = emGet();
+    let t = emFmt(tot), m = "EMOM " + A.minutes + "' · tocca Avvia", n = names[0] || "", nx = "", lab = "Avvia", cls = "";
+    let done = 0;
+    if (v) {
+      const el = Math.floor((Date.now() - v.start) / 1000);
+      lab = "Stop"; cls = "s";
+      if (el >= tot) {
+        t = "Fine"; m = "Riscaldamento completato"; n = ""; lab = "Reset"; done = A.minutes;
+        if (emLast !== -2) { emLast = -2; emBeep(3); try { navigator.vibrate && navigator.vibrate([400, 150, 400]); } catch (e) {} }
+      } else {
+        const mi = Math.floor(el / 60), left = 60 - (el % 60);
+        done = mi;
+        t = emFmt(left); m = "Minuto " + (mi + 1) + "/" + A.minutes + " · giro " + (Math.floor(mi / N) + 1);
+        n = names[mi % N]; nx = "Poi: " + (names[(mi + 1) % N] || "");
+        if (mi !== emLast) { if (emLast >= 0) { emBeep(2); try { navigator.vibrate && navigator.vibrate([250, 100, 250]); } catch (e) {} } emLast = mi; }
+      }
+    }
+    root.innerHTML = '<div class="em"><div class="t">' + t + '</div><div class="i"><div class="m">' + esc(m) +
+      '</div><div class="n">' + esc(n) + '</div><div class="nx">' + esc(nx) + '</div></div><button class="' + cls + '" data-em="1">' + lab + '</button></div>';
+    L.setHeight(Math.ceil(root.getBoundingClientRect().height) + 6);
+    if (done > emSentDone && done > 0) { emSentDone = done; L.setValue({ type: "emom", done: done, nonce: Date.now() }); }
+  }
+  root.addEventListener("click", function (e) {
+    if (!A || A.mode !== "emom" || !e.target.closest("[data-em]")) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    try { if (!emCtx && AC) emCtx = new AC(); emCtx && emCtx.resume(); } catch (er) {}
+    if (emGet()) { L.lsDel(A.lsKey); emLast = -1; emSentDone = -1; } else { L.lsSet(A.lsKey, { start: Date.now() }); emLast = 0; emBeep(1); }
+    emTick();
+  });
+
+  // ================================================================ modalità AUTH
+  // Token del dispositivo nel localStorage: inviato all'avvio, scritto dopo il login.
+  let authSent = false;
+  function renderAuth() {
+    const K = "allen_device_token_v1";
+    if (A.clear) L.lsDel(K);
+    if (A.set) L.lsSet(K, A.set);
+    if (!authSent) {
+      authSent = true;
+      L.setValue({ type: "auth", token: A.clear ? null : L.lsGet(K, null), nonce: Date.now() });
+    }
+    root.innerHTML = "";
+    L.setHeight(0);
+  }
+
+  L.onRender(function (args) {
+    A = args;
+    if (A.mode === "auth") { renderAuth(); return; }
+    if (A.mode === "emom") { if (!emIv) emIv = setInterval(emTick, 250); emTick(); return; }
+    if (A.mode === "bridge") { renderBridge(); return; }
+    cleanupAcked();
+    renderSets();
+    sendPending(false);
+  });
+})();
+</script>
+</body>
+</html>
