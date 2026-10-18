@@ -1,7 +1,7 @@
 """Allenamento — app Streamlit mobile-first per un piano di allenamento in sedute A/B/C."""
 import streamlit as st
 
-st.set_page_config(page_title="Allenamento", page_icon="🏋️", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="Allenamento", page_icon="docs/app/favicon.png", layout="centered", initial_sidebar_state="collapsed")
 
 from lib import services as S  # noqa: E402
 from lib import ui as U  # noqa: E402
