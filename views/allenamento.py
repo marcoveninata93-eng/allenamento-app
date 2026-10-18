@@ -1,4 +1,4 @@
-"""🏋️ Allenamento: home (prossima seduta, ripresa bozza) e seduta in corso, un blocco alla volta."""
+"""Allenamento: home (prossima seduta, ripresa bozza) e seduta in corso, un blocco alla volta."""
 from __future__ import annotations
 
 from datetime import date
@@ -113,7 +113,7 @@ def discard_session() -> None:
     try:
         ds.clear_draft()
     except StorageError as exc:
-        st.error(f"⚠️ Bozza non eliminata dal server: {exc}")
+        st.error(f"Bozza non eliminata dal server: {exc}", icon=":material/error:")
         return
     ss.clear_id = d.get("id") if d else None
     ss.draft, ss.synced_rev, ss.in_session = None, 0, False
@@ -235,29 +235,30 @@ def render_home(plan: dict) -> None:
     week_auto = S.current_week(sett)
     weeks_total = int(sett.get("cycleWeeks") or 8)
 
-    st.markdown("## 🏋️ Allenamento")
+    U.page_title("Allenamento", "allena")
     S.mode_banner()
     if ss.get("draft_error"):
-        st.error(f"⚠️ Non riesco a leggere dal server se c'è una seduta in corso: {ss.draft_error}")
+        U.msg(f"Non riesco a leggere dal server se c'è una seduta in corso: {U.esc(ss.draft_error)}", "err")
         st.caption("Per non sovrascrivere dati, non puoi iniziare una nuova seduta finché la lettura non riesce.")
-        if st.button("🔄 Riprova", type="primary", width="stretch"):
+        if st.button("Riprova", icon=":material/refresh:", type="primary", width="stretch"):
             st.rerun()
         T.bridge(draft=None, synced_rev=0, visible=False)
         return
     if ss.get("start_error"):
-        st.warning(ss.pop("start_error"))
+        U.msg(U.esc(ss.pop("start_error")), "warn")
 
     # ---- seduta appena salvata
     last = ss.get("last_saved")
     if last:
         log = last["log"]
         done = sum(len(L.work_sets(e)) for e in log["exercises"] if L.is_countable(e))
-        st.success(f"✅ Seduta {log['sessionId']} del {date.fromisoformat(log['date']).strftime('%d/%m')} salvata · {done} serie di lavoro.")
+        U.msg(f"<b>Seduta {U.esc(log['sessionId'])} del {date.fromisoformat(log['date']).strftime('%d/%m')} salvata</b>"
+              f" · {done} serie di lavoro.", "ok")
         for m in last.get("prs", []):
-            st.markdown(m)
+            U.msg(U.esc(m), "ok", "trophy")
         for x in last.get("declines", []):
-            st.warning(f"📉 **{x['name']}** è peggiorato 2 sedute di fila ({', '.join(x['dates'])}): "
-                       "valuta una settimana di scarico (metà serie, stesso carico).")
+            U.msg(f"<b>{U.esc(x['name'])}</b> è peggiorato 2 sedute di fila ({', '.join(x['dates'])}): "
+                  "valuta una settimana di scarico (metà serie, stesso carico).", "warn", "down")
 
     # ---- bozza sul telefono più recente di quella sul server?
     mount = ss.get("bridge_mount") or {}
@@ -269,9 +270,9 @@ def render_home(plan: dict) -> None:
     elif stored and stored.get("id") != (ss.get("clear_id") or "") and (
             not server or (server.get("id") == stored.get("id") and int(stored.get("rev", 0)) > int(server.get("rev", 0)))):
         dn, tot = L.draft_progress(stored)
-        st.warning(f"📱 Sul telefono c'è una bozza della seduta **{stored.get('sessionId')}** del "
-                   f"{stored.get('date')} ({dn}/{tot} fatte) più recente di quella sul server.")
-        if st.button("♻️ Ripristina la bozza dal telefono", type="primary", width="stretch"):
+        U.msg(f"Sul telefono c'è una bozza della seduta <b>{U.esc(stored.get('sessionId'))}</b> del "
+              f"{U.esc(stored.get('date'))} ({dn}/{tot} fatte) più recente di quella sul server.", "warn", "phone")
+        if st.button("Ripristina la bozza dal telefono", icon=":material/restore:", type="primary", width="stretch"):
             restore_from_phone(stored)
             st.rerun()
 
@@ -279,15 +280,15 @@ def render_home(plan: dict) -> None:
     if server:
         dn, tot = L.draft_progress(server)
         U.card(f'<div class="mut">Seduta in corso</div><div class="big">Seduta {U.esc(server["sessionId"])} · '
-               f'sett. {server.get("cycleWeek")}</div><div class="mut">{U.esc(server.get("sessionTitle") or "")}<br>'
+               f'settimana {server.get("cycleWeek")}</div><div class="mut">{U.esc(server.get("sessionTitle") or "")}<br>'
                f'Iniziata il {U.esc(server.get("date"))} · {dn}/{tot} completati</div>')
-        if st.button("▶️ Riprendi la seduta", type="primary", width="stretch"):
+        if st.button("Riprendi la seduta", icon=":material/play_arrow:", type="primary", width="stretch"):
             ss.in_session = True
             st.rerun()
         with st.expander("Scarta la seduta in corso"):
             st.caption("Le serie registrate in questa bozza verranno perse.")
             if st.checkbox("Confermo, voglio scartarla", key="confirm_discard_home"):
-                if st.button("🗑️ Scarta bozza", width="stretch"):
+                if st.button("Scarta bozza", icon=":material/delete:", width="stretch"):
                     discard_session()
                     st.rerun()
         T.bridge(draft=None, synced_rev=0, clear=ss.get("clear_id"), visible=False)
@@ -295,10 +296,10 @@ def render_home(plan: dict) -> None:
 
     nxt = L.next_session_id(logs, order)
     if week_auto > weeks_total:
-        st.info(f"Il ciclo di {weeks_total} settimane è terminato (siamo alla settimana {week_auto}). "
-                "Imposta la data del nuovo ciclo in ⚙️ Impostazioni.")
+        U.msg(f"Il ciclo di {weeks_total} settimane è terminato (siamo alla settimana {week_auto}). "
+              "Imposta la data del nuovo ciclo in Impostazioni.")
     choice = st.segmented_control("Seduta", order, default=nxt, key="home_sid",
-                                  format_func=lambda s: f"Seduta {s}" + (" ★" if s == nxt else ""), width="stretch")
+                                  format_func=lambda s: f"Seduta {s}" + (" · prossima" if s == nxt else ""), width="stretch")
     sid = choice or nxt
     sess = P.get_session(plan, sid)
     week = st.number_input("Settimana di ciclo", 1, 12, value=min(week_auto, 12), step=1, key="home_week",
@@ -306,23 +307,24 @@ def render_home(plan: dict) -> None:
                                 "Cambiala se hai saltato sedute o fatto uno scarico.")
     g = P.pullup_group(plan, int(week))
     pull = (g or {}).get("text", {}).get(sid, "")
-    extra = f"Trazioni: <b>{U.esc(pull)}</b>" if pull else ""
+    extra = f"Trazioni <b>{U.esc(pull)}</b>" if pull else ""
     if sid == "C" and g:
         extra += f" · giubbotto <b>{g.get('vestKg')} kg</b>"
     last_same = L.last_log_of_session(logs, sid)
     when = f"Ultima {sid}: {date.fromisoformat(last_same['date']).strftime('%d/%m')}" if last_same else f"Prima seduta {sid}"
-    U.card(f'<div class="mut">{"Prossima in rotazione A→B→C" if sid == nxt else "Scelta manuale"} · '
-           f'settimana {int(week)} di {weeks_total}</div><div class="big">{U.esc(sess["title"])}</div>'
-           f'<div class="mut">{extra}<br>{when}</div>')
-    if st.button(f"▶️ Inizia seduta {sid}", type="primary", width="stretch"):
+    blocks = " · ".join(P.block_short(b) for b in sess["blocks"])
+    U.card(f'<div class="mut">{"Prossima in rotazione A → B → C" if sid == nxt else "Scelta manuale"} · '
+           f'settimana {int(week)} di {weeks_total}</div><div class="big">{U.esc(session_short_title(sess))}</div>'
+           f'<div class="mut">{U.esc(blocks)}<br>{extra}{"<br>" if extra else ""}{when}</div>')
+    if st.button(f"Inizia seduta {sid}", icon=":material/play_arrow:", type="primary", width="stretch"):
         start_session(plan, sid, int(week), week_auto)
         sync_draft()
         st.rerun()
 
-
     decl = L.declines(logs)
     for x in decl:
-        st.warning(f"📉 **{x['name']}** (seduta {x['sessionId']}) peggiorato 2 sedute di fila: valuta lo scarico.")
+        U.msg(f"<b>{U.esc(x['name'])}</b> (seduta {x['sessionId']}) peggiorato 2 sedute di fila: valuta lo scarico.",
+              "warn", "down")
     if logs:
         st.markdown("#### Ultime sedute")
         for log in list(reversed(logs))[:3]:
@@ -331,27 +333,54 @@ def render_home(plan: dict) -> None:
     T.bridge(draft=None, synced_rev=0, clear=ss.get("clear_id"), visible=False)
 
 
+def session_short_title(sess: dict) -> str:
+    """"Squat + Panca inclinata | trazioni corpo libero · ≈50'" → "Squat + Panca inclinata"."""
+    t = sess.get("subtitle") or sess.get("title") or sess.get("id")
+    return t.split("|")[0].split("·")[0].strip()
+
+
 # ======================================================================= SEDUTA
+def cb_toggle(wkey: str):
+    def _f():
+        ss[wkey] = not ss.get(wkey, False)
+    return _f
+
+
+def cb_pick(block_id: str, i: int, done_total: int):
+    def _f():
+        ss[wk("pick", block_id)] = (i, done_total)
+    return _f
+
+
+def _done_count(ex: dict) -> int:
+    return sum(1 for s in ex.get("sets", []) if s.get("done"))
+
+
 def render_block_exercise(plan: dict, d: dict, block: dict, ex_def: dict, videos: dict, sett: dict,
-                          rest_next: str) -> None:
+                          next_info: dict | None = None) -> None:
+    """Card dell'esercizio attivo (stile Studio): tessera, nome, prescrizione, tasto video, cue,
+    serie a chip, stepper kg/rip e "Fatta, avvia recupero"; sotto, dettagli, dolore e nota."""
     ex = L.find_ex(d, f"{block['id']}:{ex_def['id']}")
     if ex is None:
         return
     presc = ex.get("prescription") or {}
-    with st.container(border=True):
-        U.exercise_header(ex_def, presc, used_alt=ex.get("usedAlternative"), compact=True)
+    used_alt = bool(ex.get("usedAlternative"))
+    vkey = wk("vid", ex["key"])
+    with st.container(key=f"excard_{ex['key'].replace(':', '_')}"):
+        with st.container(key=f"exhead_{ex['key'].replace(':', '_')}"):
+            c1, c2 = st.columns([1, 0.2], vertical_alignment="center")
+            with c1:
+                U.html_block(U.exercise_title(ex_def, presc))
+            with c2:
+                on = bool(ss.get(vkey))
+                st.button(":material/smart_display:", key=("vidon_" if on else "vid_") + ex["key"].replace(":", "_"),
+                          help="Chiudi il video" if on else "Apri il video tutorial", on_click=cb_toggle(vkey))
+        if ss.get(vkey):
+            U.show_video(P.resolve_video(ex_def, videos, alternative=used_alt))
+        U.exercise_cue(ex_def, used_alt=used_alt)
         sugg = L.suggest_progression(plan, d["sessionId"], ex["exerciseId"], S.logs()) if ex.get("sets") else None
-        if sugg and not ex.get("usedAlternative"):
-            st.caption(("💡 " if sugg["kind"] == "increase" else "ℹ️ ") + (sugg.get("short") or sugg["text"]))
-        has_alt = bool(ex_def.get("alternative")) and ex_def["alternative"] != "-"
-        with st.expander("ⓘ Dettagli", expanded=False):
-            U.exercise_details(ex_def, presc)
-            if sugg and not ex.get("usedAlternative"):
-                st.caption("Suggerimento: " + sugg["text"])
-            if has_alt:
-                k = wk("alt", ex["key"])
-                init_widget(k, bool(ex.get("usedAlternative")))
-                st.toggle("Uso l'alternativa", key=k, on_change=cb_alt(ex["key"], k))
+        if sugg and not used_alt:
+            st.caption(sugg.get("short") or sugg["text"])
         if ex.get("warmupSets"):
             labels = [f"{L.fmt_kg(w['kg'])}×{w['reps']}" for w in ex["warmupSets"]]
             k = wk("wu", ex["key"])
@@ -361,7 +390,7 @@ def render_block_exercise(plan: dict, d: dict, block: dict, ex_def: dict, videos
         if ex.get("sets"):
             T.set_logger(key=f"sl|{d['id']}|{ex['key']}", draft_id=d["id"], ex=ex,
                          synced_rev=int(ss.get("synced_rev", 0)), draft_rev=int(d.get("rev", 0)), settings=sett,
-                         rest_label=rest_next, kg_step=L.kg_step(ex_def))
+                         rest_label=(next_info or {}).get("label", ""), kg_step=L.kg_step(ex_def), next_info=next_info)
         else:
             k = wk("done", ex["key"])
             init_widget(k, bool(ex.get("done")))
@@ -372,12 +401,57 @@ def render_block_exercise(plan: dict, d: dict, block: dict, ex_def: dict, videos
             st.pills(f"Dolore {ex['painCheck']} (0 = nessuno)", list(range(11)), key=k,
                      on_change=cb_ex_field(ex["key"], "pain", k))
             if (ss.get(k) or 0) >= 4:
-                st.warning("Dolore ≥ 4: fermati e passa all'alternativa (non spingere sul dolore).")
-        k = wk("note", ex["key"])
-        init_widget(k, ex.get("note") or "")
-        st.text_input("Nota esercizio (es. RIR reale, sensazioni)", key=k, on_change=cb_ex_field(ex["key"], "note", k),
-                      placeholder="facoltativa")
-        U.video_toggle(ex_def, videos, key=f"vid|{ex['key']}", alternative=bool(ex.get("usedAlternative")))
+                U.msg("Dolore ≥ 4: fermati e passa all'alternativa (non spingere sul dolore).", "warn", "alert")
+        has_alt = bool(ex_def.get("alternative")) and ex_def["alternative"] != "-"
+        with st.expander(":material/info: Dettagli", expanded=False):
+            U.exercise_details(ex_def, presc)
+            if sugg and not used_alt:
+                st.caption("Suggerimento: " + sugg["text"])
+            if has_alt:
+                k = wk("alt", ex["key"])
+                init_widget(k, used_alt)
+                st.toggle("Uso l'alternativa", key=k, on_change=cb_alt(ex["key"], k))
+            k = wk("note", ex["key"])
+            init_widget(k, ex.get("note") or "")
+            st.text_input("Nota esercizio (es. RIR reale, sensazioni)", key=k,
+                          on_change=cb_ex_field(ex["key"], "note", k), placeholder="facoltativa")
+
+
+def render_partner(d: dict, block: dict, ex_def: dict, i: int, done_total: int) -> None:
+    """Card compatta dell'esercizio che non tocca adesso (toccala per aprirla)."""
+    ex = L.find_ex(d, f"{block['id']}:{ex_def['id']}")
+    if ex is None:
+        return
+    presc = ex.get("prescription") or {}
+    n_done, n_tot = _done_count(ex), len(ex.get("sets", []))
+    rmin, rmax = presc.get("repsMin"), presc.get("repsMax")
+    reps = f"{rmin}" if rmin == rmax or rmax is None else f"{rmin}-{rmax}"
+    sub = (f"{presc.get('setsTarget')} × {reps} · {n_done} di {n_tot} fatte" if n_tot
+           else ("fatto" if ex.get("done") else "da fare"))
+    with st.container(key=f"pc_{ex['key'].replace(':', '_')}"):
+        U.html_block(f'<div class="pcard">{U.exercise_title(ex_def, presc, sub=U.esc(sub), muted=True)}</div>')
+        st.button(f"Apri {ex_def['name']}", key=f"pick_{ex['key']}", on_click=cb_pick(block["id"], i, done_total))
+
+
+def render_exercise_block(plan: dict, d: dict, block: dict, videos: dict, sett: dict) -> None:
+    exs = block["exercises"]
+    keys = [f"{block['id']}:{x['id']}" for x in exs]
+    grouped = block.get("type") in ("superset", "circuit") and len(exs) > 1
+    if not grouped:
+        for e in exs:
+            render_block_exercise(plan, d, block, e, videos, sett)
+        return
+    done_total = sum(_done_count(L.find_ex(d, k) or {}) for k in keys)
+    act = L.active_exercise(d, keys)
+    pick = ss.get(wk("pick", block["id"]))
+    if pick and pick[1] == done_total and 0 <= pick[0] < len(exs):
+        act = pick[0]          # scelto a mano: vale finché non registri un'altra serie del blocco
+    word = "in superset con" if block.get("type") == "superset" else "in circuito con"
+    render_block_exercise(plan, d, block, exs[act], videos, sett, next_info=L.rest_info(d, keys, act))
+    order = list(range(act + 1, len(exs))) + list(range(0, act))
+    for j in order:
+        U.html_block(f'<div class="sup"><i></i>{word}</div>')
+        render_partner(d, block, exs[j], j, done_total)
 
 
 def cb_rounds(ex_key: str, wkey: str, labels: list[str]):
@@ -390,7 +464,7 @@ def cb_rounds(ex_key: str, wkey: str, labels: list[str]):
 def render_warmup(d: dict, block: dict, videos: dict) -> None:
     names = [e["name"] for e in block["exercises"]]
     st.caption("Un esercizio al minuto, 2 giri: spunta ogni giro. Col timer EMOM i giri si spuntano da soli a fine minuto.")
-    if st.toggle("⏱️ Timer EMOM 1'", key=wk("emom", block["id"])):
+    if st.toggle(":material/timer: Timer EMOM 1'", key=wk("emom", block["id"])):
         v = T.emom_timer(names, minutes=10, storage_key=f"{d['id']}_{block['id']}", key=f"emom|{d['id']}|{block['id']}")
         if isinstance(v, dict) and v.get("done"):
             if L.apply_emom(d, block["id"], int(v["done"]), S.now_ms()):
@@ -399,22 +473,24 @@ def render_warmup(d: dict, block: dict, videos: dict) -> None:
                 d = ss.draft
                 for e in block["exercises"]:
                     ss.pop(wk("rounds", f"{block['id']}:{e['id']}"), None)
-    for e in block["exercises"]:
-        ex = L.find_ex(d, f"{block['id']}:{e['id']}")
-        rounds = ex.get("rounds") or [bool(ex.get("done"))]
-        labels = [f"{i + 1}° giro" for i in range(len(rounds))]
-        k = wk("rounds", ex["key"])
-        init_widget(k, [lab for lab, r in zip(labels, rounds) if r])
-        st.pills(f"{'✅' if all(rounds) else '◻️'} {e.get('code')}. {e['name']} {e.get('setsText') or ''}", labels,
-                 selection_mode="multi", key=k, on_change=cb_rounds(ex["key"], k, labels), help=e.get("notes"))
-    with st.expander("Note, alternative e video del riscaldamento"):
+    with st.container(key="box_warmup"):
         for e in block["exercises"]:
-            st.markdown(f"**{e['name']}** — {e.get('notes') or ''}  \n🔁 {e.get('alternative') or '-'}")
+            ex = L.find_ex(d, f"{block['id']}:{e['id']}")
+            rounds = ex.get("rounds") or [bool(ex.get("done"))]
+            labels = [f"{i + 1}° giro" for i in range(len(rounds))]
+            k = wk("rounds", ex["key"])
+            init_widget(k, [lab for lab, r in zip(labels, rounds) if r])
+            U.html_block(U.exercise_title(e, {}, sub=U.esc(f"{e.get('setsText') or ''}" + (f" · {e['cue']}" if e.get("cue") else ""))))
+            st.pills(f"Giri {e['name']}", labels, selection_mode="multi", key=k, label_visibility="collapsed",
+                     on_change=cb_rounds(ex["key"], k, labels))
+    with st.expander(":material/info: Note, alternative e video del riscaldamento"):
+        for e in block["exercises"]:
+            st.markdown(f"**{e['name']}** — {e.get('notes') or ''}  \nAlternativa: {e.get('alternative') or '-'}")
             U.video_toggle(e, videos, key=f"vid|{block['id']}:{e['id']}")
 
 
 def render_finish(plan: dict, d: dict) -> None:
-    st.markdown("### 🏁 Fine seduta")
+    st.markdown("### Fine seduta")
     dn, tot = L.draft_progress(d)
     open_sets = sum(1 for e in d["exercises"] for s in e.get("sets", []) if not s.get("done"))
     st.progress(dn / tot if tot else 0, text=f"{dn}/{tot} completati")
@@ -435,15 +511,23 @@ def render_finish(plan: dict, d: dict) -> None:
     init_widget(k, d.get("notes") or "")
     st.text_area("Note seduta (sensazioni, spalla, gomiti, sonno…)", key=k, on_change=cb_field("notes", k))
     if ss.get("finish_error"):
-        st.error(ss.finish_error)
-    if st.button("💾 Termina e salva seduta", type="primary", width="stretch"):
+        U.msg(U.esc(ss.finish_error), "err")
+    if st.button("Termina e salva seduta", icon=":material/check:", type="primary", width="stretch"):
         finish_session()
         st.rerun()
     with st.expander("Scarta questa seduta"):
         if st.checkbox("Confermo: elimina la bozza senza salvare", key="confirm_discard"):
-            if st.button("🗑️ Scarta", width="stretch"):
+            if st.button("Scarta", icon=":material/delete:", width="stretch"):
                 discard_session()
                 st.rerun()
+
+
+def cb_block_pill(wkey: str, labels: list[str]):
+    def _f():
+        v = ss.get(wkey)
+        if v in labels and ss.get("draft"):
+            ss.draft["blockIndex"] = labels.index(v)
+    return _f
 
 
 def render_session(plan_for_draft: dict) -> None:
@@ -454,25 +538,53 @@ def render_session(plan_for_draft: dict) -> None:
     try:
         sess = P.get_session(plan, d["sessionId"])
     except KeyError:
-        st.error("La seduta della bozza non esiste più nel piano attivo.")
+        U.msg("La seduta della bozza non esiste più nel piano attivo.", "err")
         return
     blocks = sess["blocks"]
     n_steps = len(blocks) + 1
     idx = max(0, min(int(d.get("blockIndex", 0)), n_steps - 1))
 
-    # ---- intestazione compatta
+    # ---- intestazione: "Seduta A · Settimana 1", titolo, anello dei blocchi
     dn, tot = L.draft_progress(d)
-    weeks_total = int(sett.get("cycleWeeks") or 8)
-    st.html(f'<div class="ex-h"><span class="ex-code">{U.esc(d["sessionId"])}</span>'
-            f'<span class="ex-name">{U.esc(sess.get("subtitle") or sess["title"])}</span></div>'
-            f'<div class="ex-presc">Sett. <b>{d.get("cycleWeek")}</b>/{weeks_total} · {dn}/{tot} fatti · '
-            f'{U.sync_badge(d, int(ss.get("synced_rev", 0)), ss.get("sync_error"))}</div>')
+    U.html_block(f'<div class="ss-h"><div><div class="k">Seduta {U.esc(d["sessionId"])} · Settimana {d.get("cycleWeek")}</div>'
+            f'<div class="t">{U.esc(session_short_title(sess))}</div>'
+            f'<div class="b">{U.sync_badge(d, int(ss.get("synced_rev", 0)), ss.get("sync_error"))}'
+            f'{U.pill(f"{dn}/{tot} fatti")}</div></div>{U.ring(idx + 1, n_steps)}</div>')
     if ss.get("sync_error"):
-        st.caption(f"⚠️ {ss.sync_error}")
-        if st.button("🔄 Riprova a sincronizzare", key="retry_sync"):
+        st.caption(f"Sincronizzazione non riuscita: {ss.sync_error}")
+        if st.button("Riprova a sincronizzare", icon=":material/sync:", key="retry_sync"):
             st.rerun()
-    T.bridge(draft=d, synced_rev=int(ss.get("synced_rev", 0)), clear=ss.get("clear_id"))
-    with st.expander("📅 Dati seduta: data, settimana, home"):
+    T.bridge(draft=d, synced_rev=int(ss.get("synced_rev", 0)), clear=ss.get("clear_id"), visible=False)
+
+    # ---- linguette dei blocchi (toccabili)
+    labels = [P.block_short(b) for b in blocks] + ["Fine"]
+    seen = {}
+    for i, lab in enumerate(labels):  # nomi unici per st.pills
+        seen[lab] = seen.get(lab, 0) + 1
+        if seen[lab] > 1:
+            labels[i] = f"{lab} {seen[lab]}"
+    pk = wk("blocks", d["id"], idx)
+    ss[pk] = labels[idx]
+    with st.container(key="blockpills"):
+        st.pills("Blocchi", labels, key=pk, label_visibility="collapsed", required=True, on_change=cb_block_pill(pk, labels))
+
+    if idx < len(blocks):
+        block = blocks[idx]
+        U.html_block(f'<div class="blk-title">{U.esc(block["title"])}</div>')
+        if block.get("type") == "warmup":
+            render_warmup(d, block, videos)
+        else:
+            if any(e.get("loadFrom") == "giubbotto" for e in block["exercises"]):
+                k = wk("vest")
+                init_widget(k, d.get("vestKg"))
+                g = P.pullup_group(plan, int(d.get("cycleWeek") or 1))
+                st.number_input(f"Giubbotto per tutto il blocco (kg) · previsto {g.get('vestKg') if g else '–'}",
+                                min_value=0.0, max_value=40.0, step=1.0, key=k, on_change=cb_vest(k))
+            render_exercise_block(plan, d, block, videos, sett)
+    else:
+        render_finish(plan, d)
+
+    with st.expander(":material/calendar_month: Dati seduta: data, settimana, home"):
         k = wk("date")
         init_widget(k, date.fromisoformat(d["date"]))
         st.date_input("Data", key=k, format="DD/MM/YYYY",
@@ -482,48 +594,21 @@ def render_session(plan_for_draft: dict) -> None:
         st.number_input(f"Settimana di ciclo (calcolata: {d.get('cycleWeekAuto')})", 1, 12, step=1, key=k,
                         on_change=cb_week(k, plan),
                         help="Aggiorna serie di trazioni e giubbotto per gli esercizi non ancora iniziati.")
-        if st.button("🏠 Torna alla home (la bozza resta salvata)", width="stretch"):
+        if st.button("Torna alla home (la bozza resta salvata)", icon=":material/home:", width="stretch"):
             ss.in_session = False
             st.rerun()
-
-    # ---- indicatore blocchi
-    labels = [b["title"].split("—")[0].split("(")[0].strip().title() for b in blocks] + ["Fine"]
-    st.progress((idx + 1) / n_steps, text=f"Blocco {idx + 1}/{n_steps} · {labels[idx]}")
-
-    if idx < len(blocks):
-        block = blocks[idx]
-        st.html(f'<div class="blk-title">{U.esc(block["title"])}</div>')
-        if block.get("type") == "warmup":
-            render_warmup(d, block, videos)
-        else:
-            if block.get("type") == "superset" and len(block["exercises"]) > 1:
-                st.caption("Superset: alterna gli esercizi; dopo ✓ parte il recupero verso il prossimo.")
-            if any(e.get("loadFrom") == "giubbotto" for e in block["exercises"]):
-                k = wk("vest")
-                init_widget(k, d.get("vestKg"))
-                g = P.pullup_group(plan, int(d.get("cycleWeek") or 1))
-                st.number_input(f"🦺 Giubbotto per tutto il blocco (kg) · previsto {g.get('vestKg') if g else '–'}",
-                                min_value=0.0, max_value=40.0, step=1.0, key=k, on_change=cb_vest(k))
-            exs = block["exercises"]
-            for i, e in enumerate(exs):
-                keys = [f"{block['id']}:{x['id']}" for x in exs]
-                rest_next = L.rest_label(d, keys, i) if block.get("type") in ("superset", "circuit") else ""
-                render_block_exercise(plan, d, block, e, videos, sett, rest_next)
-            if block.get("type") == "cooldown":
-                pass
-    else:
-        render_finish(plan, d)
 
     # ---- navigazione blocchi (in basso, tasti grandi)
     with st.container(key="blocknav"):
         c1, c2, c3 = st.columns([1, 0.3, 1], wrap=False)
     with c1:
-        st.button("◀ Blocco", key="nav_prev", disabled=idx == 0, on_click=go_block(idx - 1), width="stretch")
+        st.button("Blocco", icon=":material/chevron_left:", key="nav_prev", disabled=idx == 0,
+                  on_click=go_block(idx - 1), width="stretch")
     with c2:
-        st.html(f'<div class="navpos">{idx + 1}/{n_steps}</div>')
+        U.html_block(f'<div class="navpos">{idx + 1}/{n_steps}</div>')
     with c3:
-        st.button("Blocco ▶" if idx < n_steps - 1 else "Fine ✓", key="nav_next", disabled=idx >= n_steps - 1,
-                  on_click=go_block(idx + 1), type="primary", width="stretch")
+        st.button("Blocco" if idx < n_steps - 1 else "Fine", icon=":material/chevron_right:", icon_position="right",
+                  key="nav_next", disabled=idx >= n_steps - 1, on_click=go_block(idx + 1), type="primary", width="stretch")
 
 
 # ======================================================================= main

@@ -97,6 +97,26 @@ def get_rule(plan: dict, exercise_id: str) -> dict | None:
     return None
 
 
+def block_short(block: dict) -> str:
+    """Nome breve del blocco per le linguette: campo 'short', altrimenti dal titolo
+    ("PESANTE 1 — SUPERSET A (≈17')" → "Superset A", "BLOCCO GIUBBOTTO — …" → "Giubbotto")."""
+    if block.get("short"):
+        return str(block["short"])
+    typ = block.get("type")
+    if typ == "warmup":
+        return "Riscaldamento"
+    if typ == "cooldown":
+        return "Defaticamento"
+    title = str(block.get("title") or block.get("id") or "")
+    m = re.search(r"SUPERSET\s+([A-Z0-9])\b", title, re.I)
+    if m:
+        return f"Superset {m.group(1).upper()}"
+    head = re.split(r"[—(+]", title)[0].strip()
+    head = re.sub(r"^blocco\s+", "", head, flags=re.I).strip()
+    words = head.split()
+    return " ".join(words[:2]).capitalize() if words else title
+
+
 # ---------------------------------------------------------------- tipo di metrica
 def metric_kind(ex: dict) -> str:
     """'strength' = carico in kg con unità 'rip' → e1RM sensato.

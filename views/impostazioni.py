@@ -1,4 +1,4 @@
-"""⚙️ Impostazioni e backup."""
+"""Impostazioni e backup."""
 from __future__ import annotations
 
 import json
@@ -8,9 +8,10 @@ import streamlit as st
 
 from lib import logic as L
 from lib import services as S
+from lib import ui as U
 from lib.storage import StorageError
 
-st.markdown("## ⚙️ Impostazioni")
+U.page_title("Impostazioni", "impostazioni")
 sett = S.settings()
 S.mode_banner()
 
@@ -19,10 +20,10 @@ with st.form("settings"):
                           format="DD/MM/YYYY")
     weeks = st.number_input("Durata ciclo (settimane)", 1, 16, int(sett.get("cycleWeeks") or 8))
     st.markdown("**Timer di recupero**")
-    sound = st.toggle("🔔 Beep a fine recupero", value=bool(sett.get("sound", True)))
-    vib = st.toggle("📳 Vibrazione a fine recupero", value=bool(sett.get("vibrate", True)))
-    wake = st.toggle("💡 Tieni lo schermo acceso durante la seduta (Wake Lock)", value=bool(sett.get("wakeLock", True)))
-    if st.form_submit_button("💾 Salva impostazioni", type="primary", width="stretch"):
+    sound = st.toggle(":material/volume_up: Beep a fine recupero", value=bool(sett.get("sound", True)))
+    vib = st.toggle(":material/vibration: Vibrazione a −10″ e a fine recupero", value=bool(sett.get("vibrate", True)))
+    wake = st.toggle(":material/light_mode: Tieni lo schermo acceso durante la seduta (Wake Lock)", value=bool(sett.get("wakeLock", True)))
+    if st.form_submit_button("Salva impostazioni", icon=":material/save:", type="primary", width="stretch"):
         if S.save_settings({**sett, "cycleStartDate": start.isoformat(), "cycleWeeks": int(weeks), "sound": sound,
                             "vibrate": vib, "wakeLock": wake}):
             st.success("Impostazioni salvate.")
@@ -32,23 +33,23 @@ wk = S.current_week(sett)
 st.caption(f"Oggi siamo nella settimana **{wk}** del ciclo (inizio {sett.get('cycleStartDate')}). "
            "Nella seduta puoi comunque cambiarla a mano.")
 
-st.markdown("### 💾 Backup")
+st.markdown("### Backup")
 ds = S.store()
 c1, c2 = st.columns(2)
 try:
     bundle = S.export_bundle()
     stamp = S.today_local().isoformat()
     with c1:
-        st.download_button("⬇️ Esporta JSON", json.dumps(bundle, ensure_ascii=False, indent=1).encode("utf-8"),
+        st.download_button("Esporta JSON", icon=":material/download:", data=json.dumps(bundle, ensure_ascii=False, indent=1).encode("utf-8"),
                            file_name=f"allenamento-backup-{stamp}.json", mime="application/json", width="stretch")
     with c2:
-        st.download_button("⬇️ Esporta CSV", L.logs_to_csv(bundle["logs"]).encode("utf-8"),
+        st.download_button("Esporta CSV", icon=":material/download:", data=L.logs_to_csv(bundle["logs"]).encode("utf-8"),
                            file_name=f"allenamento-serie-{stamp}.csv", mime="text/csv", width="stretch")
     st.caption(f"{len(bundle['logs'])} sedute · {len(bundle['bodyweight'])} pesate · {len(bundle['plans'])} versioni del piano.")
 except StorageError as exc:
-    st.error(f"⚠️ Export non disponibile: {exc}")
+    st.error(f"Export non disponibile: {exc}", icon=":material/error:")
 
-with st.expander("⬆️ Importa backup (JSON o CSV)"):
+with st.expander(":material/upload: Importa backup (JSON o CSV)"):
     up = st.file_uploader("File di backup", type=["json", "csv"])
     overwrite = st.checkbox("Sovrascrivi le sedute con lo stesso id", value=False)
     with_settings = st.checkbox("Importa anche le impostazioni (solo JSON)", value=False)
@@ -65,9 +66,9 @@ with st.expander("⬆️ Importa backup (JSON o CSV)"):
             for e in rep["errors"]:
                 st.warning(e)
         except (ValueError, StorageError) as exc:
-            st.error(f"⚠️ Import fallito: {exc}")
+            st.error(f"Import fallito: {exc}", icon=":material/error:")
 
-st.markdown("### 🔌 Connessione dati")
+st.markdown("### Connessione dati")
 kind = S.backend_kind()
 if kind == "github":
     if st.button("Verifica connessione GitHub", width="stretch"):
@@ -86,9 +87,9 @@ else:
 caps = (st.session_state.get("bridge_mount") or {}).get("caps") or {}
 if caps:
     st.markdown("**Questo telefono supporta:** " + " · ".join(
-        f"{lab} {'✅' if caps.get(k) else '❌'}" for k, lab in (("vibrate", "vibrazione"), ("wakeLock", "schermo acceso"), ("audio", "audio"))))
+        f"{lab} {'sì' if caps.get(k) else 'no'}" for k, lab in (("vibrate", "vibrazione"), ("wakeLock", "schermo acceso"), ("audio", "audio"))))
 
-if st.button("🔄 Ricarica dati dal server", width="stretch"):
+if st.button("Ricarica dati dal server", icon=":material/sync:", width="stretch"):
     S.invalidate()
     ss = st.session_state
     local = ss.get("draft")
@@ -104,9 +105,9 @@ if st.button("🔄 Ricarica dati dal server", width="stretch"):
         ss.draft_loaded = True
         st.success("Dati ricaricati" + (" (le serie non ancora inviate sono state conservate)." if unsynced else "."))
     except StorageError as exc:
-        st.error(f"⚠️ Ricarica non riuscita, i dati locali restano invariati: {exc}")
+        st.error(f"Ricarica non riuscita, i dati locali restano invariati: {exc}")
 
-st.markdown("### 📱 Dispositivi autorizzati")
+st.markdown("### Dispositivi autorizzati")
 devs = list(sett.get("devices") or [])
 if not S._secrets().get("APP_PASSWORD"):
     st.caption("Login disattivato (nessuna APP_PASSWORD): niente dispositivi da gestire.")

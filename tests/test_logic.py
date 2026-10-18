@@ -386,3 +386,20 @@ def test_rest_label_uneven_superset(plan):
     assert L.rest_label(d, keys, 1) == "fine blocco"   # 5ª trazione: nessun "poi A1"
     L.find_ex(d, keys[1])["sets"][3]["done"] = False
     assert L.rest_label(d, keys, 1) == "poi la serie successiva"
+
+
+def test_rest_info_and_active_exercise(plan):
+    d = L.new_draft(plan, "A", [], week=1, day=date(2026, 10, 19), now_ms=T0)
+    keys = ["A-superset-a:back-squat", "A-superset-a:trazioni-prona"]
+    assert L.active_exercise(d, keys) == 0
+    info = L.rest_info(d, keys, 0)
+    assert info["code"] == "A2" and info["set"] == 1 and info["reps"] == "× 5"
+    L.find_ex(d, keys[0])["sets"][0]["done"] = True
+    assert L.active_exercise(d, keys) == 1          # tocca alle trazioni
+    L.find_ex(d, keys[1])["sets"][0]["done"] = True
+    assert L.active_exercise(d, keys) == 0
+    assert L.rest_info(d, keys, 1)["set"] == 2 and L.rest_info(d, keys, 1)["code"] == "A1"
+    for k in keys:
+        for s in L.find_ex(d, k)["sets"]:
+            s["done"] = True
+    assert L.rest_info(d, keys, 0)["label"] == "fine blocco"

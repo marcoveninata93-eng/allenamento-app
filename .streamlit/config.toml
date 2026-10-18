@@ -1,9 +1,24 @@
 [theme]
+# palette "Studio"
 base = "dark"
-primaryColor = "#FF7A1A"
-backgroundColor = "#0E1117"
-secondaryBackgroundColor = "#161B26"
-textColor = "#F2F4F8"
+primaryColor = "#5AB8FF"
+backgroundColor = "#0F1730"
+secondaryBackgroundColor = "#24305A"
+textColor = "#EEF2FF"
+borderColor = "#2C3A6A"
+linkColor = "#8FD0FF"
+blueColor = "#5AB8FF"
+greenColor = "#8FD0FF"
+yellowColor = "#F4B860"
+redColor = "#FF8FA3"
+violetColor = "#9DAAD0"
+font = "Outfit:https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+headingFont = "Outfit:https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+baseRadius = "14px"
+buttonRadius = "14px"
+showWidgetBorder = false
+dataframeHeaderBackgroundColor = "#18223F"
+chartCategoricalColors = ["#5AB8FF", "#8FD0FF", "#F4B860", "#9DAAD0", "#7BE0B0", "#FF8FA3"]
 
 [client]
 toolbarMode = "minimal"

@@ -82,7 +82,7 @@ def require_login() -> None:
     sec = _secrets()
     pw = sec.get("APP_PASSWORD")
     if backend_kind() == "github" and not pw:
-        st.error("🔒 Backend GitHub configurato ma manca **APP_PASSWORD** nei Secrets: per sicurezza l'app non "
+        st.error("Backend GitHub configurato ma manca **APP_PASSWORD** nei Secrets: per sicurezza l'app non "
                  "legge né scrive dati finché non la imposti.")
         st.markdown("Streamlit Community Cloud → la tua app → **⋮ → Settings → Secrets** e aggiungi:\n\n"
                     "```toml\nAPP_PASSWORD = \"una-password-lunga\"\n```\n\nSalva: l'app si riavvia da sola.")
@@ -113,7 +113,8 @@ def require_login() -> None:
                 ss._auth_clear = True  # token revocato o sconosciuto: lo tolgo dal browser
                 st.rerun()
 
-    st.markdown("## 🏋️ Allenamento")
+    from . import ui as U  # noqa: PLC0415
+    U.page_title("Allenamento", "allena")
     wait = _limiter().locked_for()
     if wait > 0:
         st.error(f"Troppi tentativi errati. Riprova tra {int(wait // 60) + 1} minuti.")
@@ -121,9 +122,9 @@ def require_login() -> None:
     with st.form("login"):
         val = st.text_input("Password", type="password")
         name = st.text_input("Nome di questo dispositivo", value="Telefono",
-                             help="Serve per riconoscerlo (e revocarlo) in ⚙️ Impostazioni.")
+                             help="Serve per riconoscerlo (e revocarlo) in Impostazioni.")
         remember = st.checkbox("Ricorda questo dispositivo", value=True)
-        ok = st.form_submit_button("Entra", type="primary", width="stretch")
+        ok = st.form_submit_button("Entra", icon=":material/login:", type="primary", width="stretch")
     if ok:
         if A.check_password(val, pw):
             _limiter().success()
@@ -213,7 +214,7 @@ def safe(fn, *a, default=None, **kw):
     try:
         return fn(*a, **kw)
     except StorageError as exc:
-        st.error(f"⚠️ {exc}")
+        st.error(str(exc), icon=":material/error:")
         return default
 
 
@@ -249,7 +250,7 @@ def save_settings(new: dict) -> bool:
     try:
         store().save_settings(new)
     except StorageError as exc:
-        st.error(f"⚠️ Impostazioni non salvate: {exc}")
+        st.error(f"Impostazioni non salvate: {exc}", icon=":material/error:")
         return False
     invalidate()
     return True
@@ -265,8 +266,9 @@ def mode_banner() -> None:
     if warn:
         st.warning(warn)
     if kind == "local":
-        st.info("💾 **Modalità locale**: i dati sono salvati in `local_data/` su questo computer "
-                "(nessun GitHub configurato nei Secrets).", icon="ℹ️")
+        from . import ui as U  # noqa: PLC0415
+        U.msg("<b>Modalità locale</b>: i dati sono salvati in <code>local_data/</code> su questo computer "
+              "(nessun GitHub configurato nei Secrets).")
 
 
 def export_bundle() -> dict:

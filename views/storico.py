@@ -1,4 +1,4 @@
-"""📚 Storico: elenco sedute, dettaglio, modifica ed eliminazione."""
+"""Storico: elenco sedute, dettaglio, modifica ed eliminazione."""
 from __future__ import annotations
 
 import copy
@@ -12,7 +12,7 @@ from lib import services as S
 from lib import ui as U
 from lib.storage import StorageError
 
-st.markdown("## 📚 Storico")
+U.page_title("Storico", "storico")
 logs = S.logs()
 if not logs:
     st.info("Nessuna seduta salvata finora.")
@@ -40,7 +40,7 @@ def edit_form(log: dict) -> None:
                                 "rip": st.column_config.NumberColumn(step=1, min_value=0)},
                             key=f"ed_{log['id']}") if rows else None
         notes = st.text_area("Note seduta", value=log.get("notes") or "")
-        if st.form_submit_button("💾 Salva modifiche", type="primary", width="stretch"):
+        if st.form_submit_button("Salva modifiche", icon=":material/save:", type="primary", width="stretch"):
             new = copy.deepcopy(log)
             new["date"] = d.isoformat()
             new["notes"] = notes
@@ -69,7 +69,7 @@ def edit_form(log: dict) -> None:
                 st.success("Seduta aggiornata.")
                 st.rerun()
             except StorageError as exc:
-                st.error(f"⚠️ {exc}")
+                st.error(str(exc), icon=":material/error:")
 
 
 for log in shown[:60]:
@@ -99,7 +99,7 @@ for log in shown[:60]:
             if ws:
                 txt = L.format_sets(ws)
             elif ex.get("done"):
-                txt = "✓ fatto"
+                txt = "fatto"
             else:
                 continue
             if ex.get("warmupSets") and any(w.get("done") for w in ex["warmupSets"]):
@@ -111,21 +111,21 @@ for log in shown[:60]:
             lines.append(f"- {label}: {txt}")
         st.markdown("\n".join(lines) or "_Nessun esercizio registrato._")
         if log.get("tennis"):
-            st.markdown(f"🎾 {log['tennis']}")
+            st.markdown(f"**Attività extra:** {log['tennis']}")
         if log.get("notes"):
-            st.markdown(f"📝 {log['notes']}")
+            st.markdown(f"**Note:** {log['notes']}")
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("✏️ Modifica", key=f"edbtn_{log['id']}", width="stretch"):
+            if st.button("Modifica", icon=":material/edit:", key=f"edbtn_{log['id']}", width="stretch"):
                 st.session_state[f"editing_{log['id']}"] = not st.session_state.get(f"editing_{log['id']}", False)
         with c2:
             confirm = st.checkbox("Conferma eliminazione", key=f"delc_{log['id']}")
-            if st.button("🗑️ Elimina", key=f"del_{log['id']}", disabled=not confirm, width="stretch"):
+            if st.button("Elimina", icon=":material/delete:", key=f"del_{log['id']}", disabled=not confirm, width="stretch"):
                 try:
                     S.store().delete_log(log["id"])
                     S.invalidate()
                     st.rerun()
                 except StorageError as exc:
-                    st.error(f"⚠️ {exc}")
+                    st.error(str(exc), icon=":material/error:")
         if st.session_state.get(f"editing_{log['id']}"):
             edit_form(log)

@@ -189,16 +189,16 @@ def new_records(log: dict, prior_logs: list[dict]) -> list[str]:
         if a["kind"] == "strength" and a["best_e1rm"]:
             if not b or not b["best_e1rm"] or a["best_e1rm"]["value"] > b["best_e1rm"]["value"]:
                 if b and b["best_e1rm"]:
-                    msgs.append(f"🏆 {a['name']}: nuovo e1RM {a['best_e1rm']['value']:g} kg "
+                    msgs.append(f"{a['name']}: nuovo e1RM {a['best_e1rm']['value']:g} kg "
                                 f"({_fmt_kg(a['best_e1rm']['kg'])}×{a['best_e1rm']['reps']:g})")
         for k, v in a["reps_at_load"].items():
             if b and k in b["reps_at_load"] and v["reps"] > b["reps_at_load"][k]["reps"]:
                 label = "zavorra " if a["kind"] == "bodyweight" else ""
-                msgs.append(f"🏆 {a['name']}: {v['reps']:g} rip a {label}{k} kg (prima {b['reps_at_load'][k]['reps']:g})")
+                msgs.append(f"{a['name']}: {v['reps']:g} rip a {label}{k} kg (prima {b['reps_at_load'][k]['reps']:g})")
             elif b and b["reps_at_load"] and k not in b["reps_at_load"]:
                 prev_max = max(x["kg"] for x in b["reps_at_load"].values())
                 if v["kg"] > prev_max:
-                    msgs.append(f"🏆 {a['name']}: carico mai usato prima, {k} kg × {v['reps']:g}")
+                    msgs.append(f"{a['name']}: carico mai usato prima, {k} kg × {v['reps']:g}")
     return msgs
 
 
@@ -256,7 +256,7 @@ def suggest_progression(plan: dict, session_id: str, exercise_id: str, logs: lis
             if trig.get("rirMin") is not None:
                 txt += f" (vale se avevi ancora ~{trig['rirMin']} rip di margine: controlla le note)"
             if rule.get("blockedBy"):
-                txt += f" ⚠️ Non salire di carico se c'è {rule['blockedBy']}."
+                txt += f" Attenzione: non salire di carico se c'è {rule['blockedBy']}."
             sugg = sugg_kg if sugg_kg != kg else None
             short = f"Prova {_fmt_kg(sugg)} kg" if sugg is not None else "Obiettivo raggiunto: vedi la regola"
             return {"kind": "increase", "text": txt, "suggestKg": sugg, "short": short}
@@ -799,3 +799,52 @@ def rest_label(draft: dict, keys: list[str], idx: int) -> str:
     if undone(exs[idx]) > 1:
         return "poi la serie successiva"
     return "fine blocco"
+
+
+def _next_set(ex: dict, skip: int = 0) -> dict | None:
+    undone = [s for s in ex.get("sets", []) if not s.get("done")]
+    return undone[skip] if len(undone) > skip else None
+
+
+def _reps_txt(ex: dict, s: dict | None) -> str:
+    presc = ex.get("prescription") or {}
+    r = (s or {}).get("reps")
+    if r in (None, ""):
+        r = presc.get("repsMin")
+    unit = (presc.get("repsUnit") or "rip").strip()
+    return f"× {_fmt_kg(r)}" + ("" if unit == "rip" else f" {unit}")
+
+
+def rest_info(draft: dict, keys: list[str], idx: int) -> dict:
+    """Cosa viene dopo il recupero che parte con la prossima serie di keys[idx]
+    (stessa logica di rest_label): {label, code, name, set, reps} per il pannello del timer."""
+    exs = [find_ex(draft, k) for k in keys]
+    undone = lambda e: sum(1 for s in (e or {}).get("sets", []) if not s.get("done"))
+    for j in range(1, len(exs)):
+        e = exs[(idx + j) % len(exs)]
+        if e and e.get("sets") and undone(e) > 0:
+            s = _next_set(e)
+            return {"label": f"poi {e.get('code') or ''} {e['name']}".replace("  ", " "), "code": e.get("code") or "",
+                    "name": e["name"], "set": s["n"] if s else None, "reps": _reps_txt(e, s)}
+    me = exs[idx] if exs else None
+    if me and undone(me) > 1:
+        s = _next_set(me, 1)
+        return {"label": "poi la serie successiva", "code": me.get("code") or "", "name": me["name"],
+                "set": s["n"] if s else None, "reps": _reps_txt(me, s)}
+    return {"label": "fine blocco", "code": "", "name": "Fine blocco", "set": None, "reps": ""}
+
+
+def active_exercise(draft: dict, keys: list[str]) -> int:
+    """In un superset/circuito: l'esercizio a cui tocca adesso. Si alternano: quello con meno serie
+    fatte (a parità, il primo nell'ordine del blocco); se sono tutti finiti, il primo."""
+    best, best_done = 0, None
+    for i, k in enumerate(keys):
+        e = find_ex(draft, k)
+        if not e or not e.get("sets"):
+            continue
+        done = sum(1 for s in e["sets"] if s.get("done"))
+        if done >= len(e["sets"]):
+            continue
+        if best_done is None or done < best_done:
+            best, best_done = i, done
+    return best

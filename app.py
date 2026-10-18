@@ -9,11 +9,11 @@ from lib import ui as U  # noqa: E402
 U.inject_css()
 
 pages = [
-    st.Page("views/allenamento.py", title="Allenamento", icon="🏋️", url_path="allenamento", default=True),
-    st.Page("views/progressi.py", title="Progressi", icon="📈", url_path="progressi"),
-    st.Page("views/storico.py", title="Storico", icon="📚", url_path="storico"),
-    st.Page("views/piano.py", title="Piano", icon="📋", url_path="piano"),
-    st.Page("views/impostazioni.py", title="Impostazioni", icon="⚙️", url_path="impostazioni"),
+    st.Page("views/allenamento.py", title="Allenamento", url_path="allenamento", default=True),
+    st.Page("views/progressi.py", title="Progressi", url_path="progressi"),
+    st.Page("views/storico.py", title="Storico", url_path="storico"),
+    st.Page("views/piano.py", title="Piano", url_path="piano"),
+    st.Page("views/impostazioni.py", title="Impostazioni", url_path="impostazioni"),
 ]
 # la navigazione va dichiarata prima del login: così, dopo l'accesso, si resta sulla pagina richiesta
 nav = st.navigation(pages, position="hidden")

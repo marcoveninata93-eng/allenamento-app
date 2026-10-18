@@ -1,4 +1,4 @@
-"""📈 Progressi: grafici per esercizio, PR, peggioramenti, peso corporeo, monitoraggio settimanale."""
+"""Progressi: grafici per esercizio, PR, peggioramenti, peso corporeo, monitoraggio settimanale."""
 from __future__ import annotations
 
 from datetime import date
@@ -12,7 +12,7 @@ from lib import services as S
 from lib import ui as U
 from lib.storage import StorageError
 
-st.markdown("## 📈 Progressi")
+U.page_title("Progressi", "progressi")
 logs = S.logs()
 plan = S.active_plan()
 tracked = L.tracked_exercises(logs)
@@ -32,12 +32,15 @@ def line_chart(df: pd.DataFrame, y: str, title: str, color: str | None = "Seduta
         y=alt.Y(f"{y}:Q", title=title, scale=alt.Scale(zero=False, padding=12), axis=alt.Axis(format="~f", tickCount=5)),
         tooltip=[alt.Tooltip("Data:T", format="%d/%m/%Y"), *( [color] if color else []), alt.Tooltip(f"{y}:Q", format=".1f"), "Serie"],
     )
-    enc = {"color": alt.Color(f"{color}:N", scale=alt.Scale(range=["#FF7A1A", "#3b82f6", "#22c55e", "#e879f9"]),
+    enc = {"color": alt.Color(f"{color}:N", scale=alt.Scale(range=[U.ACCENT, "#F4B860", "#7BE0B0", "#FF8FA3"]),
                               legend=alt.Legend(orient="top", title=None))} if color else {}
-    return (base.mark_line(strokeWidth=2.5).encode(**enc) + base.mark_point(size=70, filled=True).encode(**enc)).properties(height=260)
+    return (base.mark_line(strokeWidth=2.5).encode(**enc) + base.mark_point(size=70, filled=True).encode(**enc)).properties(
+        height=260).configure(background="transparent").configure_view(strokeWidth=0).configure_axis(
+        gridColor=U.LINE, domainColor=U.LINE, tickColor=U.LINE, labelColor=U.MUTED, titleColor=U.MUTED,
+        labelFont="Outfit", titleFont="Outfit").configure_legend(labelColor=U.FG, labelFont="Outfit")
 
 
-tab1, tab2, tab3 = st.tabs(["🏋️ Esercizi", "⚖️ Peso", "🗓️ Settimane"])
+tab1, tab2, tab3 = st.tabs(["Esercizi", "Peso", "Settimane"])
 
 with tab1:
     if not tracked:
@@ -73,7 +76,7 @@ with tab1:
 
         rec = L.personal_records(logs).get(exid)
         if rec:
-            st.markdown("#### 🏆 Record")
+            U.html_block(f'<div class="sec">{U.icon("trophy", 18, U.ACCENT)} Record</div>')
             html = ""
             if rec.get("best_e1rm"):
                 b = rec["best_e1rm"]
@@ -90,7 +93,7 @@ with tab1:
 
     decl = L.declines(logs)
     if decl:
-        st.markdown("#### 📉 Attenzione")
+        U.html_block(f'<div class="sec">{U.icon("down", 18, U.WARN)} Attenzione</div>')
         for x in decl:
             st.warning(f"**{x['name']}** (seduta {x['sessionId']}) è peggiorato 2 sedute di fila "
                        f"({', '.join(d[8:10] + '/' + d[5:7] for d in x['dates'])}). "
@@ -104,26 +107,28 @@ with tab2:
             d = st.date_input("Data", value=S.today_local(), format="DD/MM/YYYY")
         with c2:
             kg = st.number_input("Peso (kg)", min_value=30.0, max_value=200.0, step=0.1, value=None, placeholder="75.0")
-        if st.form_submit_button("➕ Salva pesata", width="stretch") and kg:
+        if st.form_submit_button("Salva pesata", icon=":material/add:", width="stretch") and kg:
             try:
                 S.store().save_bodyweight(L.upsert_bodyweight(entries, d, kg))
                 S.invalidate()
                 st.success("Pesata salvata.")
                 entries = S.bodyweight()
             except StorageError as exc:
-                st.error(f"⚠️ {exc}")
+                st.error(str(exc), icon=":material/error:")
     st.caption("Pesati al mattino a digiuno: conta la media settimanale, non il singolo giorno.")
     start = (plan.get("progression", {}).get("monitoring", {}) or {}).get("bodyWeightStartKg")
     if entries:
         dfd = pd.DataFrame([{"Data": pd.to_datetime(e["date"]), "kg": e["kg"]} for e in entries])
         wk = L.weekly_bodyweight(entries)
         dfw = pd.DataFrame([{"Data": pd.to_datetime(w["weekStart"]) + pd.Timedelta(days=3), "media": w["mean"]} for w in wk])
-        pts = alt.Chart(dfd).mark_point(color="#9aa3b5", size=50).encode(
+        pts = alt.Chart(dfd).mark_point(color=U.MUTED, size=50).encode(
             x=alt.X("Data:T", title=None, axis=alt.Axis(format="%d/%m")), y=alt.Y("kg:Q", scale=alt.Scale(zero=False), title="kg"),
             tooltip=[alt.Tooltip("Data:T", format="%d/%m"), "kg"])
-        line = alt.Chart(dfw).mark_line(color="#FF7A1A", strokeWidth=3, point=True).encode(x="Data:T", y="media:Q",
+        line = alt.Chart(dfw).mark_line(color=U.ACCENT, strokeWidth=3, point=alt.OverlayMarkDef(color=U.ACCENT, size=60)).encode(x="Data:T", y="media:Q",
                                                                                             tooltip=["media"])
-        st.altair_chart((pts + line).properties(height=240), width="stretch")
+        st.altair_chart((pts + line).properties(height=240).configure(background="transparent").configure_view(
+            strokeWidth=0).configure_axis(gridColor=U.LINE, domainColor=U.LINE, tickColor=U.LINE, labelColor=U.MUTED,
+                                          titleColor=U.MUTED, labelFont="Outfit", titleFont="Outfit"), width="stretch")
         last_w = wk[-1]
         msg = f"Media settimana dal {last_w['weekStart'][8:10]}/{last_w['weekStart'][5:7]}: **{last_w['mean']} kg** ({last_w['n']} pesate)"
         if start:

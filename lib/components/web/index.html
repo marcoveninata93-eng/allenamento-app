@@ -4,43 +4,57 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  :root { --bg:#0e1117; --card:#161b26; --line:#2a3142; --fg:#f2f4f8; --mut:#9aa3b5; --acc:#FF7A1A; --ok:#22c55e; --warn:#f59e0b; }
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+  :root { --bg:#0F1730; --card:#18223F; --line:#2C3A6A; --chip:#24305A; --note:#1F2A4D; --acc:#5AB8FF; --fg:#EEF2FF; --mut:#9DAAD0;
+          --done:#1E3B5E; --donefg:#8FD0FF; --dash:#3B4A7E; --warn:#F4B860; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin:0; padding:0; background:transparent; color:var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  html, body { margin:0; padding:0; background:transparent; color:var(--fg); font-family: 'Outfit', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   body { padding: 2px 1px 4px; }
-  table { width:100%; border-collapse: separate; border-spacing: 0 4px; font-size:15px; }
-  th { font-size:12px; color:var(--mut); font-weight:600; text-align:center; padding:0 2px; }
-  td { text-align:center; padding:8px 2px; background:var(--card); font-variant-numeric: tabular-nums; }
-  td:first-child { border-radius:10px 0 0 10px; font-weight:700; width:44px; }
-  td:last-child { border-radius:0 10px 10px 0; width:44px; font-size:18px; }
-  td.prev { color:var(--mut); font-size:13px; }
-  tr.row { cursor:pointer; }
-  tr.sel td { background:#24314a; box-shadow: inset 0 1px 0 var(--acc), inset 0 -1px 0 var(--acc); }
-  tr.sel td:first-child { box-shadow: inset 1px 1px 0 var(--acc), inset 0 -1px 0 var(--acc); }
-  tr.sel td:last-child { box-shadow: inset -1px 1px 0 var(--acc), inset 0 -1px 0 var(--acc); }
-  tr.done td { color:#c9f7da; }
-  tr.extra td:first-child::after { content:"+"; color:var(--acc); font-size:11px; vertical-align:super; }
-  .ed { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; margin-top:4px; }
-  .edt { font-size:13px; color:var(--mut); margin-bottom:6px; }
-  .grp { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
-  .grp label { width:62px; font-size:13px; color:var(--mut); line-height:1.1; }
-  .grp button { width:64px; height:52px; border-radius:12px; border:1px solid var(--line); background:#222938; color:var(--fg); font-size:18px; font-weight:700; touch-action:manipulation; }
-  .grp button:active { background:#2f3850; }
-  .grp input { flex:1; min-width:0; height:52px; border-radius:12px; border:1px solid var(--line); background:#0b0f16; color:var(--fg); font-size:24px; font-weight:800; text-align:center; font-variant-numeric: tabular-nums; }
-  .grp .fixed { flex:1; text-align:center; font-size:20px; font-weight:800; }
-  .ok { width:100%; height:60px; border:0; border-radius:14px; background:var(--acc); color:#151515; font-size:19px; font-weight:800; touch-action:manipulation; }
-  .ok:active { filter:brightness(.9); }
-  .ok.upd { background:#3b82f6; color:#fff; }
-  .row2 { display:flex; gap:6px; margin-top:8px; }
-  .row2 button { flex:1; height:48px; border-radius:12px; border:1px solid var(--line); background:#1d2330; color:var(--fg); font-size:15px; font-weight:600; }
-  .alldone { text-align:center; padding:10px 6px; color:#c9f7da; font-weight:700; }
-  .em { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; display:flex; gap:10px; align-items:center; }
-  .em .t { font-size:34px; font-weight:800; font-variant-numeric:tabular-nums; min-width:86px; text-align:center; }
+  button { font-family: inherit; touch-action: manipulation; cursor: pointer; }
+  .ic { display:inline-block; vertical-align:-3px; }
+  /* serie come chip */
+  .chips { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:8px; }
+  .chip { position:relative; height:58px; border-radius:14px; border:1px dashed var(--dash); background:transparent; color:var(--mut);
+          display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:0; }
+  .chip .k { font-size:16px; font-weight:700; font-variant-numeric: tabular-nums; line-height:1.1; }
+  .chip .r { font-size:12px; display:flex; align-items:center; gap:3px; }
+  .chip.done { background:var(--done); border:1px solid var(--done); }
+  .chip.done .k { color:var(--donefg); }
+  .chip.cur { background:var(--acc); border:1px solid var(--acc); color:var(--bg); }
+  .chip.cur .k { color:var(--bg); }
+  .chip.cur.done { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--acc); }
+  .chip .x { position:absolute; top:3px; right:7px; font-size:11px; font-weight:700; color:var(--acc); }
+  .chip.cur .x { color:var(--bg); }
+  .meta { font-size:13px; color:var(--mut); margin:12px 2px 8px; }
+  .meta b { color:var(--fg); font-weight:600; }
+  /* stepper kg / rip affiancati */
+  .steps { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px; }
+  .steps.one { grid-template-columns: 1fr; }
+  .stp { display:flex; align-items:center; justify-content:space-between; background:var(--bg); border-radius:16px; padding:6px; gap:4px; min-width:0; }
+  .stp button { width:46px; height:46px; flex:0 0 46px; border-radius:12px; border:0; background:var(--chip); color:var(--fg); font-size:17px; font-weight:500; }
+  .stp button:active { background:#2f3c6e; }
+  .stp .v { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; }
+  .stp input { width:100%; min-width:0; border:0; background:transparent; color:var(--fg); font-family:inherit; font-size:24px; font-weight:700;
+               text-align:center; font-variant-numeric: tabular-nums; padding:0; height:30px; -moz-appearance:textfield; }
+  .stp input::-webkit-outer-spin-button, .stp input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .stp input:focus { outline:none; }
+  .stp span { font-size:11px; color:var(--mut); }
+  .stp .fixed { font-size:24px; font-weight:700; height:30px; line-height:30px; }
+  .ok { width:100%; height:56px; margin-top:12px; border:0; border-radius:18px; background:var(--acc); color:var(--bg); font-size:18px; font-weight:700;
+        display:flex; align-items:center; justify-content:center; gap:8px; }
+  .ok:active { filter:brightness(.92); }
+  .ok.upd { background:var(--chip); color:var(--fg); }
+  .row2 { display:flex; gap:8px; margin-top:8px; }
+  .row2 button { flex:1; height:42px; border-radius:14px; border:0; background:var(--chip); color:var(--mut); font-size:14px; font-weight:500; }
+  .alldone { text-align:center; padding:12px 6px 2px; color:var(--donefg); font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; }
+  /* timer EMOM */
+  .em { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:12px 14px; display:flex; gap:12px; align-items:center; }
+  .em .t { font-size:34px; font-weight:700; font-variant-numeric:tabular-nums; min-width:86px; text-align:center; color:var(--acc); }
   .em .i { flex:1; min-width:0; } .em .m { font-size:13px; color:var(--mut); }
-  .em .n { font-size:17px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .em .n { font-size:17px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .em .nx { font-size:12px; color:var(--mut); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .em button { height:52px; min-width:84px; border-radius:12px; border:0; background:var(--acc); color:#151515; font-size:16px; font-weight:800; }
-  .em button.s { background:#262c3a; color:#fff; border:1px solid #3a4152; }
+  .em button { height:50px; min-width:84px; border-radius:16px; border:0; background:var(--acc); color:var(--bg); font-size:16px; font-weight:700; }
+  .em button.s { background:var(--chip); color:var(--fg); }
   .bridge { font-size:12px; color:var(--mut); padding:2px 4px; }
   .bridge b { color:var(--fg); }
 </style>
@@ -63,6 +77,13 @@
     if (v === null || v === undefined || v === "") return "–";
     const f = Number(v);
     return Number.isInteger(f) ? String(f) : String(Math.round(f * 100) / 100);
+  }
+  const IC = {
+    check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+    timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>',
+  };
+  function ico(n, sz) {
+    return '<svg class="ic" width="' + (sz || 14) + '" height="' + (sz || 14) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[n] + '</svg>';
   }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
@@ -147,41 +168,59 @@
     if (sel !== null && !edit) setEditFrom(sets[sel]);
     const ack = A.ackT || {};
     const showKg = A.kgMode !== "none";
-    let h = '<table><tr><th>Serie</th><th>Precedente</th>' + (showKg ? '<th>' + (A.kgMode === "bw" ? "zav. kg" : "kg") + '</th>' : '') + '<th>' + esc(A.unit || "rip") + '</th><th>✓</th></tr>';
+    const unit = A.unit || "rip";
+    let h = '<div class="chips" style="grid-template-columns: repeat(' + (sets.length >= 2 && sets.length <= 5 ? sets.length : 4) + ', minmax(0, 1fr))">';
     sets.forEach((s, i) => {
-      const pk = s.prev ? s.prev.kg : null;
-      const prev = s.prev ? ((showKg && pk !== null && pk !== undefined && !(A.kgMode === "bw" && Number(pk) === 0) ? fmt(pk) + "×" : "") + fmt(s.prev.reps)) : "–";
       const synced = s.done && A.synced && ack[String(s.n)] >= (s.t || 0) && !s.local;
-      const icon = s.done ? (synced ? "✅" : "⏳") : "○";
-      h += '<tr class="row' + (i === sel ? " sel" : "") + (s.done ? " done" : "") + (s.extra ? " extra" : "") + '" data-i="' + i + '">' +
-        '<td>' + s.n + '</td><td class="prev">' + prev + '</td>' + (showKg ? '<td>' + fmt(s.kg) + '</td>' : '') +
-        '<td>' + fmt(s.reps) + '</td><td title="' + (s.done ? (synced ? "salvata" : "sul telefono, in invio") : "da fare") + '">' + icon + '</td></tr>';
+      const kgOk = showKg && s.kg !== null && s.kg !== undefined && !(A.kgMode === "bw" && !Number(s.kg));
+      const top = kgOk ? fmt(s.kg) : fmt(s.reps);
+      const bot = kgOk ? "× " + fmt(s.reps) : esc(unit);
+      const st = s.done ? (synced ? ico("check", 13) : ico("timer", 13)) : "";
+      const cls = "chip" + (s.done ? " done" : "") + (i === sel ? " cur" : "");
+      const tip = s.done ? (synced ? "salvata" : "sul telefono, in invio") : "da fare";
+      h += '<button class="' + cls + '" data-i="' + i + '" aria-label="Serie ' + s.n + ', ' + tip + '">' + (s.extra ? '<span class="x">+</span>' : '') +
+        '<span class="k">' + top + '</span><span class="r">' + bot + (st ? " " + st : "") + '</span></button>';
     });
-    h += '</table>';
+    h += '</div>';
     if (sel !== null) {
       const s = sets[sel];
-      h += '<div class="ed"><div class="edt">Serie ' + s.n + ' di ' + sets.length + (s.extra ? " · serie extra (oltre il previsto)" : "") + (s.done ? " · già fatta: puoi correggerla" : "") + (A.restLabel && !s.done && A.restSec ? " · dopo: recupero, " + esc(A.restLabel) : "") + '</div>';
-      if (A.kgMode === "vest") {
-        h += '<div class="grp"><label>giubbotto</label><div class="fixed">' + fmt(s.kg) + ' kg</div></div>';
-      } else if (showKg) {
-        h += '<div class="grp"><label>' + (A.kgMode === "bw" ? "zavorra<br>kg" : "kg") + '</label><button data-a="kg-">−' + fmt(A.kgStep) + '</button>' +
-          '<input id="kg" type="number" inputmode="decimal" step="' + A.kgStep + '" min="0" value="' + (edit.kg ?? "") + '"><button data-a="kg+">+' + fmt(A.kgStep) + '</button></div>';
-      }
-      h += '<div class="grp"><label>' + esc(A.unit || "rip") + '</label><button data-a="r-">−1</button>' +
-        '<input id="reps" type="number" inputmode="numeric" step="1" min="0" value="' + (edit.reps ?? "") + '"><button data-a="r+">+1</button></div>';
-      const bwFree = A.kgMode === "bw" && !Number(edit.kg);
       if (A.kgMode === "vest") edit.kg = s.kg;
-      const lab = (showKg && edit.kg !== null && edit.kg !== undefined && !bwFree ? fmt(edit.kg) + " kg × " : "") + fmt(edit.reps) + " " + esc(A.unit || "rip") + (A.kgMode === "bw" && Number(edit.kg) ? " (zavorra)" : "");
-      h += '<button class="ok' + (s.done ? " upd" : "") + '" data-a="ok">✓ ' + (s.done ? "Aggiorna" : "Serie") + " " + s.n + " · " + lab + '</button>';
-      h += '<div class="row2">' + (s.done ? '<button data-a="undo">↺ Segna non fatta</button>' : '') +
+      const pk = s.prev ? s.prev.kg : null;
+      const prev = s.prev ? ((showKg && pk !== null && pk !== undefined && !(A.kgMode === "bw" && Number(pk) === 0) ? fmt(pk) + "×" : "") + fmt(s.prev.reps)) : null;
+      h += '<div class="meta">Serie <b>' + s.n + '</b> di ' + sets.length + (prev ? ' · prec. <b>' + prev + '</b>' : '') +
+        (s.extra ? " · extra" : "") + (s.done ? " · già fatta: puoi correggerla" : "") + '</div>';
+      h += '<div class="steps' + (showKg ? '' : ' one') + '">';
+      if (A.kgMode === "vest") {
+        h += '<div class="stp"><div class="v"><div class="fixed">' + fmt(s.kg) + '</div><span>kg giubbotto</span></div></div>';
+      } else if (showKg) {
+        h += '<div class="stp"><button data-a="kg-" aria-label="Meno ' + fmt(A.kgStep) + ' kg">−' + fmt(A.kgStep) + '</button>' +
+          '<div class="v"><input id="kg" type="number" inputmode="decimal" step="' + A.kgStep + '" min="0" value="' + (edit.kg ?? "") + '"><span>' + (A.kgMode === "bw" ? "kg zavorra" : "kg") + '</span></div>' +
+          '<button data-a="kg+" aria-label="Più ' + fmt(A.kgStep) + ' kg">+' + fmt(A.kgStep) + '</button></div>';
+      }
+      h += '<div class="stp"><button data-a="r-" aria-label="Meno 1">−1</button>' +
+        '<div class="v"><input id="reps" type="number" inputmode="numeric" step="1" min="0" value="' + (edit.reps ?? "") + '"><span>' + esc(unit) + '</span></div>' +
+        '<button data-a="r+" aria-label="Più 1">+1</button></div></div>';
+      const lab = s.done ? "Aggiorna serie " + s.n : (A.restSec ? "Fatta, avvia recupero" : "Fatta");
+      h += '<button class="ok' + (s.done ? " upd" : "") + '" data-a="ok">' + lab + '</button>';
+      h += '<div class="row2">' + (s.done ? '<button data-a="undo">Segna non fatta</button>' : '') +
         (A.canAdd !== false ? '<button data-a="add">+ Serie extra</button>' : '') +
-        (sets.length > 1 && sel === sets.length - 1 && !s.done ? '<button data-a="rm">− Togli serie</button>' : '') + '</div></div>';
+        (sets.length > 1 && sel === sets.length - 1 && !s.done ? '<button data-a="rm">− Togli serie</button>' : '') + '</div>';
     } else {
-      h += '<div class="alldone">Tutte le serie fatte 💪 — tocca una serie per correggerla</div>';
+      h += '<div class="alldone">' + ico("check", 18) + 'Tutte le serie fatte · tocca una serie per correggerla</div>';
       if (A.canAdd !== false) h += '<div class="row2"><button data-a="add">+ Serie extra</button></div>';
     }
     root.innerHTML = h;
     L.setHeight(Math.ceil(root.getBoundingClientRect().height) + 6);
+  }
+
+  // "Poi: …" nel pannello del timer. Fuori dai superset la prossima è la serie successiva di questo esercizio.
+  function nextInfo(n) {
+    const nx = A.next || {};
+    if (nx.code || nx.name) return nx;
+    const sets = mergedSets();
+    const s = sets.find(x => !x.done && x.n !== n);
+    if (!s) return { name: "Fine esercizio", code: "", set: null, reps: "" };
+    return { code: A.code || "", name: A.name || "", set: s.n, reps: "× " + fmt(s.reps) + ((A.unit || "rip") === "rip" ? "" : " " + A.unit) };
   }
 
   function readInputs() {
@@ -194,10 +233,10 @@
   root.addEventListener("click", function (e) {
     if (!A) return;
     if (A.mode !== "sets") return;
-    const t = e.target.closest("[data-a],tr.row");
+    const t = e.target.closest("[data-a],.chip");
     if (!t) return;
     const sets = mergedSets();
-    if (t.matches("tr.row")) { sel = Number(t.getAttribute("data-i")); setEditFrom(sets[sel]); renderSets(); return; }
+    if (t.matches(".chip")) { sel = Number(t.getAttribute("data-i")); setEditFrom(sets[sel]); renderSets(); return; }
     const a = t.getAttribute("data-a");
     if (edit) readInputs();
     const step = Number(A.kgStep || 2.5);
@@ -211,7 +250,7 @@
       const s = sets[sel];
       const wasDone = s.done;
       emit({ type: "set", n: s.n, kg: A.kgMode === "none" ? null : (A.kgMode === "vest" ? s.kg : edit.kg), reps: edit.reps, done: true });
-      if (!wasDone && A.restSec) L.startRest(A.restSec, A.restLabel, { sound: A.sound, vibrate: A.vibrate, wakeLock: A.wakeLock });
+      if (!wasDone && A.restSec) L.startRest(A.restSec, A.restLabel, { sound: A.sound, vibrate: A.vibrate, wakeLock: A.wakeLock, next: nextInfo(s.n) });
       sel = null; edit = null;
     }
     if (a === "undo") { const s = sets[sel]; emit({ type: "set", n: s.n, kg: s.kg, reps: s.reps, done: false }); }
@@ -266,7 +305,7 @@
     }
     const q = L.outbox().filter(e => !A.draftId || e.draftId === A.draftId).length;
     root.innerHTML = A.visible === false ? "" :
-      '<div class="bridge">📱 Copia sul telefono: <b>' + (A.draft || L.lsGet(DK, null) ? "ok" : "–") + '</b> · in coda: <b>' + q + '</b></div>';
+      '<div class="bridge">Copia sul telefono: <b>' + (A.draft || L.lsGet(DK, null) ? "ok" : "–") + '</b> · in coda: <b>' + q + '</b></div>';
     L.setHeight(A.visible === false ? 0 : Math.ceil(root.getBoundingClientRect().height) + 4);
   }
 

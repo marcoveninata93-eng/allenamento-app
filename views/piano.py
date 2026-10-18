@@ -1,4 +1,4 @@
-"""📋 Piano: vista completa, regole di progressione, tabella trazioni, modifica come nuova versione."""
+"""Piano: vista completa, regole di progressione, tabella trazioni, modifica come nuova versione."""
 from __future__ import annotations
 
 import pandas as pd
@@ -9,7 +9,7 @@ from lib import services as S
 from lib import ui as U
 from lib.storage import StorageError
 
-st.markdown("## 📋 Piano")
+U.page_title("Piano", "piano")
 sett = S.settings()
 versions = S.plan_versions()
 active_v = int(sett.get("activePlanVersion") or 1)
@@ -26,7 +26,7 @@ if v != active_v and st.button(f"Usa la versione v{v} come piano attivo", width=
         st.rerun()
 
 videos = S.videos()
-tabs = st.tabs([f"Seduta {s['id']}" for s in plan["sessions"]] + ["Progressione", "✏️ Modifica"])
+tabs = st.tabs([f"Seduta {s['id']}" for s in plan["sessions"]] + ["Progressione", "Modifica"])
 
 for tab, sess in zip(tabs, plan["sessions"]):
     with tab:
@@ -57,7 +57,7 @@ for tab, sess in zip(tabs, plan["sessions"]):
                     if extra:
                         st.html("<div>" + "".join(extra) + "</div>")
                     if e.get("alternative") and e["alternative"] != "-":
-                        st.markdown(f"🔁 **Alternativa:** {e['alternative']}")
+                        st.markdown(f"**Alternativa:** {e['alternative']}")
                     U.video_toggle(e, videos, key=f"pv|{v}|{b['id']}|{e['id']}")
                     if e.get("alternative") and e["alternative"] != "-" and P.resolve_video(e, videos, True)["embed"]:
                         U.video_toggle(e, videos, key=f"pva|{v}|{b['id']}|{e['id']}", alternative=True)
@@ -74,7 +74,7 @@ with tabs[len(plan["sessions"])]:
             st.markdown(f"**{r['name']}** — {r.get('setsText', '')} · RIR {r.get('rir', '-')}  \n"
                         f"Partenza: {r.get('startingLoadKg') if r.get('startingLoadKg') is not None else r.get('startingLoadText', '-')} kg"
                         + (f" · ciclo precedente: {r['lastResultCycle1']}" if r.get("lastResultCycle1") else "")
-                        + f"  \n➡️ {r['rule']}")
+                        + f"  \n{r['rule']}")
     pu = prog.get("pullUps")
     if pu:
         st.markdown(f"#### {pu.get('title', 'Trazioni')}")
@@ -128,13 +128,13 @@ with tabs[-1]:
                                       0.25, 50.0, value=float(e["kgStep"]) if e.get("kgStep") else None, step=0.5)
             cue = st.text_input("Indicazione chiave (mostrata nella seduta, max ~50 caratteri)", e.get("cue") or "",
                                 max_chars=70)
-            notes = st.text_area("Note tecniche (in ⓘ Dettagli)", e.get("notes") or "")
+            notes = st.text_area("Note tecniche (in Dettagli)", e.get("notes") or "")
             alt_txt = st.text_input("Alternativa", e.get("alternative") or "")
             video = st.text_input("Link video YouTube diretto (facoltativo, sostituisce quello predefinito)", e.get("video") or "")
             track = st.checkbox("Registra serie (kg/rip)", value=e.get("track", True) is not False)
             all_sessions = st.checkbox("Applica nome/indicazione/note/alternativa/video a tutte le sedute con questo esercizio", value=False)
             activate = st.checkbox("Rendi attiva la nuova versione", value=True)
-            ok = st.form_submit_button("💾 Salva come nuova versione", type="primary", width="stretch")
+            ok = st.form_submit_button("Salva come nuova versione", icon=":material/save:", type="primary", width="stretch")
         if ok:
             changes = {"name": name, "sets": sets, "repsMin": rmin, "repsMax": rmax, "setsText": sets_text,
                        "tempo": tempo, "rest": rest, "startingLoadKg": load, "rir": rir, "repsUnit": unit,
@@ -154,11 +154,11 @@ with tabs[-1]:
                     st.toast(f"Salvata la versione v{newp['version']}.")
                     st.rerun()
             except (ValueError, KeyError, StorageError) as exc:
-                st.error(f"⚠️ {exc}")
+                st.error(str(exc), icon=":material/error:")
     else:
         st.caption("Modifica avanzata: il JSON viene validato prima del salvataggio.")
         txt = st.text_area("Piano (JSON)", P.plan_to_text(plan), height=420, key=f"json_{v}")
-        if st.button("✅ Valida e salva come nuova versione", type="primary", width="stretch"):
+        if st.button("Valida e salva come nuova versione", icon=":material/check:", type="primary", width="stretch"):
             data, errs = P.parse_plan_text(txt)
             if errs:
                 st.error("Correggi questi problemi:\n- " + "\n- ".join(errs))
@@ -172,4 +172,4 @@ with tabs[-1]:
                     st.toast(f"Salvata e attivata la versione v{newp['version']}.")
                     st.rerun()
                 except StorageError as exc:
-                    st.error(f"⚠️ {exc}")
+                    st.error(str(exc), icon=":material/error:")

@@ -1,4 +1,4 @@
-"""Componenti lato browser: registro serie con ✓ (outbox in localStorage + timer di recupero),
+"""Componenti lato browser: registro serie (outbox in localStorage + timer di recupero),
 ponte bozza/telefono e timer EMOM per il riscaldamento."""
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ _allen = components.declare_component("allen_web", path=str(_WEB))
 
 
 def set_logger(*, key: str, draft_id: str, ex: dict, synced_rev: int, draft_rev: int, settings: dict,
-               rest_label: str = "", kg_step: float | None = None) -> dict | None:
+               rest_label: str = "", kg_step: float | None = None, next_info: dict | None = None) -> dict | None:
     sets = []
     ack = {}
     for s in ex.get("sets", []):
@@ -29,7 +29,8 @@ def set_logger(*, key: str, draft_id: str, ex: dict, synced_rev: int, draft_rev:
     return _allen(
         mode="sets", draftId=draft_id, exKey=ex["key"], sets=sets, ackT=ack, synced=draft_rev <= synced_rev,
         kgMode=mode, kgStep=float(step), unit=presc.get("repsUnit") or "rip",
-        restSec=presc.get("restSec"), restLabel=rest_label, sound=settings.get("sound", True),
+        restSec=presc.get("restSec"), restLabel=rest_label, next=next_info, code=ex.get("code") or "",
+        name=ex.get("name") or "", sound=settings.get("sound", True),
         vibrate=settings.get("vibrate", True), wakeLock=settings.get("wakeLock", True),
         key=key, default=None,
     )
