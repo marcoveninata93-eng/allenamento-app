@@ -200,7 +200,9 @@ def strip_sheet_refs(text: str | None) -> str | None:
 def migrate_plan(plan: dict, default: dict | None = None) -> dict:
     """Completa un piano salvato (copia di plan_v1) con i campi nuovi presi dal piano predefinito,
     senza toccare quello che l'utente ha cambiato: aggiunge 'cue' e 'kgStep' solo se mancano
-    (prima per seduta+blocco+esercizio, poi per exerciseId) e toglie i rimandi al foglio dalle note."""
+    (prima per seduta+blocco+esercizio, poi per exerciseId). Le note si toccano solo se sono ancora
+    quelle originali di plan_v1 (con il rimando al foglio): allora diventano quelle nuove del piano
+    predefinito. Le note scritte dall'utente restano com'erano."""
     if default is None:
         default = load_default_plan()
     p = copy.deepcopy(plan)
@@ -214,8 +216,9 @@ def migrate_plan(plan: dict, default: dict | None = None) -> dict:
         for field in ("cue", "kgStep"):
             if field not in e and src.get(field) not in (None, ""):
                 e[field] = src[field]
-        if e.get("notes"):
-            e["notes"] = strip_sheet_refs(e["notes"])
+        note = e.get("notes")
+        if note and "foglio" in note and src.get("notes") is not None and strip_sheet_refs(note) == src["notes"]:
+            e["notes"] = src["notes"]
     return p
 
 

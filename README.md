@@ -43,12 +43,16 @@ L'obiettivo principale è **non perdere mai i dati**, anche quando in palestra l
   della **stessa seduta** (A con A) e della stessa serie; la prima volta con il **minimo** del range di ripetizioni.
   Registrare una serie è **un tap su "Fatta, avvia recupero"**; per correggere ci sono gli stepper affiancati
   **±kg** (5 kg per il bilanciere, 4 kg per le kettlebell, 1 kg per giubbotto/zavorra, oppure il campo `kgStep`
-  del piano; precompilazione e suggerimenti arrotondano allo stesso passo) e **±1 rip** (o si scrive il numero).
+  del piano; i tasti ± portano al multiplo del passo, il carico iniziale del piano e i suggerimenti vengono
+  arrotondati al passo ma mai sotto l'ultimo carico, mentre i valori dell'ultima seduta si ripropongono come sono,
+  anche 102,5) e **±1 rip** (o si scrive il numero).
   Toccando un chip si corregge quella serie. Si può aggiungere una **serie extra** (es. la 5ª trazione) o toglierne una.
 - **Timer di recupero** che parte da solo dopo "Fatta" (durata presa dal piano, es. "60-90''" → 90 s): pannello
   che sale dal basso con l'anello che si svuota, −15″ / +15″ / Salta e il riquadro "Poi: A2 Trazioni · serie 3 × 5".
-  Vibrazione a −10″ e allo zero, beep e lampeggio a fine recupero, schermo acceso. Trascinandolo in basso (o
-  toccando la maniglia) si riduce a una barra, così si possono correggere i valori durante il recupero. Si basa
+  Vibrazione a −10″ e allo zero, beep e lampeggio a fine recupero, schermo acceso. Il pannello non blocca la
+  pagina: la pagina scorre da sola in modo che il tasto "Fatta" dell'esercizio successivo (il partner del superset)
+  resti visibile sopra il pannello, quindi la serie dopo si segna con un tocco anche col timer aperto; se lo
+  spazio non basta il pannello parte ridotto. Trascinandolo in basso (o toccando la maniglia) si riduce a una barra. Si basa
   sull'orario di fine salvato nel telefono, quindi sopravvive ai rerun e ai refresh.
 - **Riscaldamento EMOM**: per ogni esercizio una spunta per giro (2 giri × 5); col timer a intervalli
   di 1' (facoltativo) i giri si spuntano da soli a fine minuto.

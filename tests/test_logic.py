@@ -314,13 +314,28 @@ def test_round_kg():
     assert P.round_kg(14, 4, "kettlebell") == 14  # kettlebell: pesi fissi, non si arrotonda
 
 
-def test_prefill_rounds_to_step(plan):
-    """Precompilazione da una seduta con 102,5 kg (vecchio passo 2,5) → multiplo di 5."""
+def test_prefill_keeps_history_values(plan):
+    """Una seduta precedente a 102,5 si precompila a 102,5: lo storico non si arrotonda mai."""
     l1 = mk_log(plan, "A", "2026-10-19", {"back-squat": [(102.5, 5), (107.5, 4)]})
     d = L.new_draft(plan, "A", [l1], week=1, day=date(2026, 10, 26), now_ms=T0)
     sq = L.find_ex(d, "A-superset-a:back-squat")
-    assert [s["kg"] for s in sq["sets"]] == [100, 105, 105, 105]
-    assert sq["sets"][0]["prev"] == {"kg": 102.5, "reps": 5}  # il "precedente" resta quello vero
+    assert [s["kg"] for s in sq["sets"]] == [102.5, 107.5, 107.5, 107.5]
+    assert sq["sets"][0]["prev"] == {"kg": 102.5, "reps": 5}
+    l2 = mk_log(plan, "B", "2026-10-21", {"military-press": [(32.5, 8)] * 4})
+    d2 = L.new_draft(plan, "B", [l2], week=1, day=date(2026, 10, 28), now_ms=T0)
+    assert L.find_ex(d2, "B-superset-b:military-press")["sets"][0]["kg"] == 32.5
+    l3 = mk_log(plan, "A", "2026-10-19", {"trazioni-prona": [(2.5, 5)] * 4})
+    d3 = L.new_draft(plan, "A", [l3], week=1, day=date(2026, 10, 26), now_ms=T0)
+    assert L.find_ex(d3, "A-superset-a:trazioni-prona")["sets"][0]["kg"] == 2.5
+
+
+def test_prefill_starting_load_snapped_to_step(plan):
+    """Senza storico si parte da startingLoadKg, portato al passo dell'attrezzo."""
+    import copy as _c
+    p = _c.deepcopy(plan)
+    P.find_exercise(p, "A", "back-squat")[1]["startingLoadKg"] = 102.5
+    d = L.new_draft(p, "A", [], week=1, day=date(2026, 10, 26), now_ms=T0)
+    assert L.find_ex(d, "A-superset-a:back-squat")["sets"][0]["kg"] == 100
     l2 = mk_log(plan, "C", "2026-10-23", {"trazioni-zavorrate-prona": [(8, 4)] * 4})
     d2 = L.new_draft(plan, "C", [l2], week=1, day=date(2026, 10, 30), now_ms=T0)
     assert [s["kg"] for s in L.find_ex(d2, "C-vest:trazioni-zavorrate-prona")["sets"]] == [8] * 4
@@ -330,8 +345,12 @@ def test_suggestion_rounds_to_step(plan):
     l1 = mk_log(plan, "C", "2026-10-23", {"affondi-bulgari-bilanciere": [(22.5, 12)] * 3})
     s = L.suggest_progression(plan, "C", "affondi-bulgari-bilanciere", [l1])
     assert s["suggestKg"] == 30 and s["short"] == "Prova 30 kg"   # 22,5 + 10 = 32,5 → 30
-    l2 = mk_log(plan, "A", "2026-10-19", {"back-squat": [(100, 6), (100, 5), (100, 5), (100, 4)]})
-    assert L.suggest_progression(plan, "A", "back-squat", [l2])["short"].startswith("Resta a 100 kg")
+    l2 = mk_log(plan, "A", "2026-10-19", {"back-squat": [(102.5, 6), (102.5, 5), (102.5, 5), (102.5, 4)]})
+    assert L.suggest_progression(plan, "A", "back-squat", [l2])["short"].startswith("Resta a 102.5 kg")
+    # mai sotto l'ultimo carico: regola "→ 110 kg" ma l'ultima volta 112,5 → nessun calo suggerito
+    l3 = mk_log(plan, "A", "2026-10-19", {"back-squat": [(112.5, 6)] * 4})
+    s3 = L.suggest_progression(plan, "A", "back-squat", [l3])
+    assert s3["suggestKg"] is None or s3["suggestKg"] >= 112.5
 
 
 def test_warmup_rounds(plan):

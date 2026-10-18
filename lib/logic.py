@@ -251,7 +251,8 @@ def suggest_progression(plan: dict, session_id: str, exercise_id: str, logs: lis
             if sugg_kg is None and nxt.get("loadKgDelta"):
                 sugg_kg = kg + nxt["loadKgDelta"]
             if sugg_kg is not None and ex_def:
-                sugg_kg = snap_kg(ex_def, sugg_kg)
+                # al passo dell'attrezzo, ma mai sotto l'ultimo carico registrato
+                sugg_kg = max(snap_kg(ex_def, sugg_kg), kg)
             txt = f"Ultima volta {trig['sets']}×{trig['reps']} a {_fmt_kg(kg)} kg completato. Regola: {rule['rule']}"
             if trig.get("rirMin") is not None:
                 txt += f" (vale se avevi ancora ~{trig['rirMin']} rip di margine: controlla le note)"
@@ -262,7 +263,7 @@ def suggest_progression(plan: dict, session_id: str, exercise_id: str, logs: lis
             return {"kind": "increase", "text": txt, "suggestKg": sugg, "short": short}
         reps_txt = "-".join(f"{s.get('reps'):g}" if isinstance(s.get('reps'), float) else str(s.get("reps")) for s in at_kg)
         return {"kind": "hold", "suggestKg": None,
-                "short": f"Resta a {_fmt_kg(snap_kg(ex_def, kg) if ex_def else kg)} kg, punta a {trig['sets']}×{trig['reps']}",
+                "short": f"Resta a {_fmt_kg(kg)} kg, punta a {trig['sets']}×{trig['reps']}",
                 "text": f"Ultima volta {_fmt_kg(kg)} kg: {reps_txt}. Resta su questo carico e aggiungi ripetizioni "
                         f"fino a {trig['sets']}×{trig['reps']}."}
     rmax = ex_def.get("repsMax")
@@ -335,12 +336,12 @@ def build_sets(ex_def: dict, presc: dict, prev_ex: dict | None, vest: float | No
         if mode == "vest":
             kg = vest
         elif mode == "bw":
-            kg = snap_kg(ex_def, ps.get("kg")) if ps and ps.get("kg") is not None else 0
+            kg = ps.get("kg") if ps and ps.get("kg") is not None else 0
         elif mode == "none":
             kg = ps.get("kg") if ps else None
         else:
-            kg = ps.get("kg") if ps and ps.get("kg") is not None else ex_def.get("startingLoadKg")
-            kg = snap_kg(ex_def, kg)
+            # lo storico si ripropone com'è (anche 102,5); solo il carico iniziale del piano va al passo
+            kg = ps.get("kg") if ps and ps.get("kg") is not None else snap_kg(ex_def, ex_def.get("startingLoadKg"))
         reps = ps.get("reps") if ps and ps.get("reps") else (presc.get("repsMin") or presc.get("repsMax"))
         out.append({"n": i + 1, "kg": kg, "reps": reps, "done": False, "t": 0, "rev": 0, "prev": prev})
     return out
@@ -824,14 +825,14 @@ def rest_info(draft: dict, keys: list[str], idx: int) -> dict:
         e = exs[(idx + j) % len(exs)]
         if e and e.get("sets") and undone(e) > 0:
             s = _next_set(e)
-            return {"label": f"poi {e.get('code') or ''} {e['name']}".replace("  ", " "), "code": e.get("code") or "",
+            return {"label": f"poi {e.get('code') or ''} {e['name']}".replace("  ", " "), "key": e["key"], "code": e.get("code") or "",
                     "name": e["name"], "set": s["n"] if s else None, "reps": _reps_txt(e, s)}
     me = exs[idx] if exs else None
     if me and undone(me) > 1:
         s = _next_set(me, 1)
-        return {"label": "poi la serie successiva", "code": me.get("code") or "", "name": me["name"],
+        return {"label": "poi la serie successiva", "key": me["key"], "code": me.get("code") or "", "name": me["name"],
                 "set": s["n"] if s else None, "reps": _reps_txt(me, s)}
-    return {"label": "fine blocco", "code": "", "name": "Fine blocco", "set": None, "reps": ""}
+    return {"label": "fine blocco", "key": None, "code": "", "name": "Fine blocco", "set": None, "reps": ""}
 
 
 def active_exercise(draft: dict, keys: list[str]) -> int:

@@ -211,6 +211,24 @@
     }
     root.innerHTML = h;
     L.setHeight(Math.ceil(root.getBoundingClientRect().height) + 6);
+    maybeReveal();
+  }
+
+  // dopo "Fatta": se questo è l'esercizio che viene dopo, il suo tasto "Fatta" deve restare sopra il pannello del recupero
+  function maybeReveal(tries) {
+    let R = null;
+    try { R = window.parent.__allenRest; } catch (e) { return; }
+    if (!R || !R.wantsReveal || !R.wantsReveal(A.exKey)) return;
+    setTimeout(function () {
+      const ok = document.querySelector(".ok");
+      let fr = null;
+      try { fr = window.frameElement && window.frameElement.getBoundingClientRect(); } catch (e) {}
+      if (!ok || !fr) return;
+      // aspetta che Streamlit abbia dato all'iframe l'altezza giusta
+      if (fr.height < root.getBoundingClientRect().height - 2 && (tries || 0) < 6) { maybeReveal((tries || 0) + 1); return; }
+      const r = ok.getBoundingClientRect();
+      R.reveal(fr.top + r.top, fr.top + r.bottom);
+    }, 250);
   }
 
   // "Poi: …" nel pannello del timer. Fuori dai superset la prossima è la serie successiva di questo esercizio.
@@ -219,8 +237,8 @@
     if (nx.code || nx.name) return nx;
     const sets = mergedSets();
     const s = sets.find(x => !x.done && x.n !== n);
-    if (!s) return { name: "Fine esercizio", code: "", set: null, reps: "" };
-    return { code: A.code || "", name: A.name || "", set: s.n, reps: "× " + fmt(s.reps) + ((A.unit || "rip") === "rip" ? "" : " " + A.unit) };
+    if (!s) return { name: "Fine esercizio", code: "", set: null, reps: "", key: null };
+    return { key: A.exKey, code: A.code || "", name: A.name || "", set: s.n, reps: "× " + fmt(s.reps) + ((A.unit || "rip") === "rip" ? "" : " " + A.unit) };
   }
 
   function readInputs() {
@@ -250,7 +268,7 @@
       const s = sets[sel];
       const wasDone = s.done;
       emit({ type: "set", n: s.n, kg: A.kgMode === "none" ? null : (A.kgMode === "vest" ? s.kg : edit.kg), reps: edit.reps, done: true });
-      if (!wasDone && A.restSec) L.startRest(A.restSec, A.restLabel, { sound: A.sound, vibrate: A.vibrate, wakeLock: A.wakeLock, next: nextInfo(s.n) });
+      if (!wasDone && A.restSec) L.startRest(A.restSec, A.restLabel, { sound: A.sound, vibrate: A.vibrate, wakeLock: A.wakeLock, next: nextInfo(s.n), started: true });
       sel = null; edit = null;
     }
     if (a === "undo") { const s = sets[sel]; emit({ type: "set", n: s.n, kg: s.kg, reps: s.reps, done: false }); }

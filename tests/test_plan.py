@@ -130,7 +130,7 @@ def test_migrate_plan_adds_missing_fields_and_keeps_user_edits(plan):
     _, msq = P.find_exercise(m, "A", "back-squat")
     assert msq["cue"] == P.find_exercise(plan, "A", "back-squat")[1]["cue"]
     assert msq["kgStep"] == 5 and msq["sets"] == 5
-    assert msq["notes"] == "Mia nota personale."
+    assert msq["notes"].endswith("Mia nota personale.") and "foglio" in msq["notes"]  # nota dell'utente: intatta
     _, mtr = P.find_exercise(m, "C", "trazioni-zavorrate-prona")
     assert mtr["cue"] == "cue mia" and mtr["kgStep"] == 2
     # la cue dipende dalla seduta quando lo stesso esercizio compare in più sedute
@@ -156,3 +156,14 @@ def test_update_exercise_cue_and_kg_step(plan):
     newp = P.update_exercise(plan, "A", "A-superset-a", "back-squat", {"cue": "Nuova", "kgStep": None})
     _, sq = P.find_exercise(newp, "A", "back-squat")
     assert sq["cue"] == "Nuova" and "kgStep" not in sq and P.kg_step(sq) == 5
+
+
+def test_migrate_cleans_only_untouched_v1_notes(plan):
+    old = copy.deepcopy(plan)
+    _, sq = P.find_exercise(old, "A", "back-squat")
+    sq["notes"] = "Carico e regola di progressione: foglio 'Carichi e Progressione'. " + sq["notes"]  # testo originale v1
+    _, st = P.find_exercise(old, "B", "stacco-da-terra")
+    st["notes"] = "Vedi foglio 'Carichi e Progressione'. Scritta da me."
+    m = P.migrate_plan(old, plan)
+    assert P.find_exercise(m, "A", "back-squat")[1]["notes"] == P.find_exercise(plan, "A", "back-squat")[1]["notes"]
+    assert P.find_exercise(m, "B", "stacco-da-terra")[1]["notes"] == "Vedi foglio 'Carichi e Progressione'. Scritta da me."
