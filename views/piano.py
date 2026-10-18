@@ -44,6 +44,8 @@ for tab, sess in zip(tabs, plan["sessions"]):
                     extra = []
                     if e.get("startingLoadKg") is not None:
                         extra.append(U.pill(f"carico iniziale {e['startingLoadKg']} kg"))
+                    if e.get("startingLoadKg") is not None or e.get("bodyweight") or e.get("loadFrom"):
+                        extra.append(U.pill(f"passo ±{P.kg_step(e):g} kg"))
                     if e.get("loadFrom") == "giubbotto":
                         extra.append(U.pill("peso = giubbotto"))
                     if e.get("setsFromProgression"):
@@ -119,20 +121,24 @@ with tabs[-1]:
             with c2:
                 load = st.number_input("Carico iniziale kg (vuoto = nessun carico)", 0.0, 400.0,
                                        value=float(e["startingLoadKg"]) if e.get("startingLoadKg") is not None else None,
-                                       step=2.5)
+                                       step=float(P.kg_step(e)))
                 rir = st.text_input("RIR target", e.get("rir") or "")
                 unit = st.text_input("Unità", e.get("repsUnit") or "rip")
-            notes = st.text_area("Note tecniche", e.get("notes") or "")
+            kg_step = st.number_input(f"Passo tasti ±kg (vuoto = automatico, {P.default_kg_step(e):g} kg per questo attrezzo)",
+                                      0.25, 50.0, value=float(e["kgStep"]) if e.get("kgStep") else None, step=0.5)
+            cue = st.text_input("Indicazione chiave (mostrata nella seduta, max ~50 caratteri)", e.get("cue") or "",
+                                max_chars=70)
+            notes = st.text_area("Note tecniche (in ⓘ Dettagli)", e.get("notes") or "")
             alt_txt = st.text_input("Alternativa", e.get("alternative") or "")
             video = st.text_input("Link video YouTube diretto (facoltativo, sostituisce quello predefinito)", e.get("video") or "")
             track = st.checkbox("Registra serie (kg/rip)", value=e.get("track", True) is not False)
-            all_sessions = st.checkbox("Applica nome/note/alternativa/video a tutte le sedute con questo esercizio", value=False)
+            all_sessions = st.checkbox("Applica nome/indicazione/note/alternativa/video a tutte le sedute con questo esercizio", value=False)
             activate = st.checkbox("Rendi attiva la nuova versione", value=True)
             ok = st.form_submit_button("💾 Salva come nuova versione", type="primary", width="stretch")
         if ok:
             changes = {"name": name, "sets": sets, "repsMin": rmin, "repsMax": rmax, "setsText": sets_text,
                        "tempo": tempo, "rest": rest, "startingLoadKg": load, "rir": rir, "repsUnit": unit,
-                       "notes": notes, "alternative": alt_txt, "video": video or None, "track": track}
+                       "notes": notes, "cue": cue, "kgStep": kg_step, "alternative": alt_txt, "video": video or None, "track": track}
             try:
                 newp = P.update_exercise(plan, sid, bid, eid, changes, all_sessions=all_sessions)
                 newp = P.new_version(newp, versions, S.today_local())

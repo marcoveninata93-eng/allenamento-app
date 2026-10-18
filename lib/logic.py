@@ -14,7 +14,7 @@ from typing import Any, Iterable
 from . import plan as P
 
 SCHEMA = 2
-KG_STEP = 2.5
+KG_STEP = P.OTHER_STEP
 
 
 # ======================================================================= date
@@ -250,14 +250,19 @@ def suggest_progression(plan: dict, session_id: str, exercise_id: str, logs: lis
             sugg_kg = nxt.get("loadKg")
             if sugg_kg is None and nxt.get("loadKgDelta"):
                 sugg_kg = kg + nxt["loadKgDelta"]
+            if sugg_kg is not None and ex_def:
+                sugg_kg = snap_kg(ex_def, sugg_kg)
             txt = f"Ultima volta {trig['sets']}×{trig['reps']} a {_fmt_kg(kg)} kg completato. Regola: {rule['rule']}"
             if trig.get("rirMin") is not None:
                 txt += f" (vale se avevi ancora ~{trig['rirMin']} rip di margine: controlla le note)"
             if rule.get("blockedBy"):
                 txt += f" ⚠️ Non salire di carico se c'è {rule['blockedBy']}."
-            return {"kind": "increase", "text": txt, "suggestKg": sugg_kg if sugg_kg != kg else None}
+            sugg = sugg_kg if sugg_kg != kg else None
+            short = f"Prova {_fmt_kg(sugg)} kg" if sugg is not None else "Obiettivo raggiunto: vedi la regola"
+            return {"kind": "increase", "text": txt, "suggestKg": sugg, "short": short}
         reps_txt = "-".join(f"{s.get('reps'):g}" if isinstance(s.get('reps'), float) else str(s.get("reps")) for s in at_kg)
         return {"kind": "hold", "suggestKg": None,
+                "short": f"Resta a {_fmt_kg(snap_kg(ex_def, kg) if ex_def else kg)} kg, punta a {trig['sets']}×{trig['reps']}",
                 "text": f"Ultima volta {_fmt_kg(kg)} kg: {reps_txt}. Resta su questo carico e aggiungi ripetizioni "
                         f"fino a {trig['sets']}×{trig['reps']}."}
     rmax = ex_def.get("repsMax")
@@ -265,7 +270,7 @@ def suggest_progression(plan: dict, session_id: str, exercise_id: str, logs: lis
     if rmax and target and last["kind"] != "bodyweight":
         hit = sum(1 for s in at_kg if (s.get("reps") or 0) >= rmax)
         if hit >= target:
-            return {"kind": "increase", "suggestKg": None,
+            return {"kind": "increase", "suggestKg": None, "short": "Obiettivo raggiunto: valuta un aumento",
                     "text": f"Ultima volta {target}×{rmax} a {_fmt_kg(kg)} kg completato: valuta un aumento o una variante più difficile."}
     return None
 
@@ -300,17 +305,14 @@ def kg_mode(ex: dict) -> str:
 
 
 def kg_step(ex: dict) -> float:
-    """Passo dei tasti ±: campo 'kgStep' del piano, altrimenti kettlebell 4 kg,
-    giubbotto/zavorra 1 kg, bilanciere e resto 2,5 kg."""
-    if ex.get("kgStep"):
-        return float(ex["kgStep"])
-    mode = kg_mode(ex)
-    if mode in ("vest", "bw"):
-        return 1.0
-    txt = f"{ex.get('id', '')} {ex.get('name', '')}".lower()
-    if re.search(r"(^|[\s-])kb($|[\s-])", txt) or "kettlebell" in txt:
-        return 4.0
-    return KG_STEP
+    """Passo dei tasti ±: campo 'kgStep' del piano, altrimenti dal tipo di attrezzo
+    (bilanciere 5 kg, kettlebell 4 kg, giubbotto/zavorra 1 kg, resto 2,5 kg)."""
+    return P.kg_step(ex)
+
+
+def snap_kg(ex: dict, kg: Any) -> Any:
+    """Carico arrotondato al passo dell'esercizio (es. multipli di 5 per il bilanciere)."""
+    return P.round_kg(kg, kg_step(ex), P.equipment(ex))
 
 
 def make_prescription(plan: dict, ex: dict, week: int) -> dict:
@@ -333,11 +335,12 @@ def build_sets(ex_def: dict, presc: dict, prev_ex: dict | None, vest: float | No
         if mode == "vest":
             kg = vest
         elif mode == "bw":
-            kg = ps.get("kg") if ps and ps.get("kg") is not None else 0
+            kg = snap_kg(ex_def, ps.get("kg")) if ps and ps.get("kg") is not None else 0
         elif mode == "none":
             kg = ps.get("kg") if ps else None
         else:
             kg = ps.get("kg") if ps and ps.get("kg") is not None else ex_def.get("startingLoadKg")
+            kg = snap_kg(ex_def, kg)
         reps = ps.get("reps") if ps and ps.get("reps") else (presc.get("repsMin") or presc.get("repsMax"))
         out.append({"n": i + 1, "kg": kg, "reps": reps, "done": False, "t": 0, "rev": 0, "prev": prev})
     return out

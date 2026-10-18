@@ -162,7 +162,7 @@
       const s = sets[sel];
       h += '<div class="ed"><div class="edt">Serie ' + s.n + ' di ' + sets.length + (s.extra ? " · serie extra (oltre il previsto)" : "") + (s.done ? " · già fatta: puoi correggerla" : "") + (A.restLabel && !s.done && A.restSec ? " · dopo: recupero, " + esc(A.restLabel) : "") + '</div>';
       if (A.kgMode === "vest") {
-        h += '<div class="grp"><label>giubbotto</label><div class="fixed">' + fmt(edit.kg) + ' kg</div></div>';
+        h += '<div class="grp"><label>giubbotto</label><div class="fixed">' + fmt(s.kg) + ' kg</div></div>';
       } else if (showKg) {
         h += '<div class="grp"><label>' + (A.kgMode === "bw" ? "zavorra<br>kg" : "kg") + '</label><button data-a="kg-">−' + fmt(A.kgStep) + '</button>' +
           '<input id="kg" type="number" inputmode="decimal" step="' + A.kgStep + '" min="0" value="' + (edit.kg ?? "") + '"><button data-a="kg+">+' + fmt(A.kgStep) + '</button></div>';
@@ -170,6 +170,7 @@
       h += '<div class="grp"><label>' + esc(A.unit || "rip") + '</label><button data-a="r-">−1</button>' +
         '<input id="reps" type="number" inputmode="numeric" step="1" min="0" value="' + (edit.reps ?? "") + '"><button data-a="r+">+1</button></div>';
       const bwFree = A.kgMode === "bw" && !Number(edit.kg);
+      if (A.kgMode === "vest") edit.kg = s.kg;
       const lab = (showKg && edit.kg !== null && edit.kg !== undefined && !bwFree ? fmt(edit.kg) + " kg × " : "") + fmt(edit.reps) + " " + esc(A.unit || "rip") + (A.kgMode === "bw" && Number(edit.kg) ? " (zavorra)" : "");
       h += '<button class="ok' + (s.done ? " upd" : "") + '" data-a="ok">✓ ' + (s.done ? "Aggiorna" : "Serie") + " " + s.n + " · " + lab + '</button>';
       h += '<div class="row2">' + (s.done ? '<button data-a="undo">↺ Segna non fatta</button>' : '') +
@@ -200,14 +201,16 @@
     const a = t.getAttribute("data-a");
     if (edit) readInputs();
     const step = Number(A.kgStep || 2.5);
-    if (a === "kg-") edit.kg = Math.max(0, Math.round(((Number(edit.kg) || 0) - step) * 100) / 100);
-    if (a === "kg+") edit.kg = Math.round(((Number(edit.kg) || 0) + step) * 100) / 100;
+    // ± porta sempre al multiplo del passo (es. 102,5 → 105 / 100 col bilanciere a passi di 5)
+    const q = (Number(edit.kg) || 0) / step;
+    if (a === "kg-") edit.kg = Math.max(0, Math.round((Math.ceil(q - 1e-6) - 1) * step * 100) / 100);
+    if (a === "kg+") edit.kg = Math.round((Math.floor(q + 1e-6) + 1) * step * 100) / 100;
     if (a === "r-") edit.reps = Math.max(0, (Number(edit.reps) || 0) - 1);
     if (a === "r+") edit.reps = (Number(edit.reps) || 0) + 1;
     if (a === "ok") {
       const s = sets[sel];
       const wasDone = s.done;
-      emit({ type: "set", n: s.n, kg: A.kgMode === "none" ? null : edit.kg, reps: edit.reps, done: true });
+      emit({ type: "set", n: s.n, kg: A.kgMode === "none" ? null : (A.kgMode === "vest" ? s.kg : edit.kg), reps: edit.reps, done: true });
       if (!wasDone && A.restSec) L.startRest(A.restSec, A.restLabel, { sound: A.sound, vibrate: A.vibrate, wakeLock: A.wakeLock });
       sel = null; edit = null;
     }

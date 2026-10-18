@@ -106,3 +106,53 @@ def test_parse_plan_text(plan):
     assert data is None and "JSON non valido" in errs[0]
     data, errs = P.parse_plan_text(P.plan_to_text(plan))
     assert errs == [] and data["sessions"]
+
+
+def test_cue_short_and_notes_without_sheet_refs(plan):
+    for s, b, e in P.iter_exercises(plan):
+        assert e.get("cue"), f"{s['id']}/{e['id']} senza cue"
+        assert len(e["cue"]) <= 50, e["cue"]
+        assert "foglio" not in (e.get("notes") or "")
+
+
+def test_migrate_plan_adds_missing_fields_and_keeps_user_edits(plan):
+    old = copy.deepcopy(plan)
+    for _, _, e in P.iter_exercises(old):
+        e.pop("cue", None)
+        e.pop("kgStep", None)
+    _, sq = P.find_exercise(old, "A", "back-squat")
+    sq["notes"] = "Carico e regola di progressione: foglio 'Carichi e Progressione'. Mia nota personale."
+    sq["sets"] = 5
+    _, tr = P.find_exercise(old, "C", "trazioni-zavorrate-prona")
+    tr["cue"] = "cue mia"
+    tr["kgStep"] = 2
+    m = P.migrate_plan(old, plan)
+    _, msq = P.find_exercise(m, "A", "back-squat")
+    assert msq["cue"] == P.find_exercise(plan, "A", "back-squat")[1]["cue"]
+    assert msq["kgStep"] == 5 and msq["sets"] == 5
+    assert msq["notes"] == "Mia nota personale."
+    _, mtr = P.find_exercise(m, "C", "trazioni-zavorrate-prona")
+    assert mtr["cue"] == "cue mia" and mtr["kgStep"] == 2
+    # la cue dipende dalla seduta quando lo stesso esercizio compare in più sedute
+    assert P.find_exercise(m, "A", "trazioni-prona")[1]["cue"] == P.find_exercise(plan, "A", "trazioni-prona")[1]["cue"]
+    assert P.find_exercise(m, "B", "trazioni-prona")[1]["cue"] == P.find_exercise(plan, "B", "trazioni-prona")[1]["cue"]
+    # esercizio nuovo dell'utente (non nel piano predefinito): nessun campo inventato, passo dal codice
+    old["sessions"][0]["blocks"][1]["exercises"].append({"id": "front-squat", "name": "Front squat", "sets": 3,
+                                                          "startingLoadKg": 70})
+    m2 = P.migrate_plan(old, plan)
+    fs = P.find_exercise(m2, "A", "front-squat")[1]
+    assert "cue" not in fs and P.kg_step(fs) == 5
+    assert P.find_exercise(old, "A", "back-squat")[1].get("cue") is None  # originale intatto
+    assert P.validate_plan(m) == []
+
+
+def test_validate_kg_step(plan):
+    bad = copy.deepcopy(plan)
+    bad["sessions"][0]["blocks"][1]["exercises"][0]["kgStep"] = 0
+    assert any("kgStep" in e for e in P.validate_plan(bad))
+
+
+def test_update_exercise_cue_and_kg_step(plan):
+    newp = P.update_exercise(plan, "A", "A-superset-a", "back-squat", {"cue": "Nuova", "kgStep": None})
+    _, sq = P.find_exercise(newp, "A", "back-squat")
+    assert sq["cue"] == "Nuova" and "kgStep" not in sq and P.kg_step(sq) == 5

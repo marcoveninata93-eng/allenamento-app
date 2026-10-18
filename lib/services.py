@@ -173,7 +173,14 @@ def _settings(_ds_id: int, token: int) -> dict:
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def _plan(_ds_id: int, version: int, token: int) -> dict | None:
-    return DataStore(get_backend()[0]).get_plan(version)
+    p = DataStore(get_backend()[0]).get_plan(version)
+    # piani salvati prima di 'cue'/'kgStep': completati dal piano predefinito (solo in lettura)
+    return P.migrate_plan(p, _default_plan()) if p else p
+
+
+@st.cache_data(show_spinner=False)
+def _default_plan() -> dict:
+    return P.load_default_plan()
 
 
 @st.cache_data(ttl=300, show_spinner=False)

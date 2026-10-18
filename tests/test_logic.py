@@ -270,13 +270,68 @@ def test_prefill_without_history_uses_min_reps(plan):
 
 def test_kg_step(plan):
     get = lambda s, e: P.find_exercise(plan, s, e)[1]
-    assert L.kg_step(get("A", "back-squat")) == 2.5
+    # bilanciere: ±5 (niente dischi da 2,5)
+    for sid, eid in (("A", "back-squat"), ("B", "stacco-da-terra"), ("A", "panca-inclinata-bilanciere"),
+                     ("B", "military-press"), ("C", "affondi-bulgari-bilanciere")):
+        assert L.kg_step(get(sid, eid)) == 5, eid
+    # zavorra / giubbotto: ±1
+    for sid, eid in (("C", "trazioni-zavorrate-prona"), ("C", "push-up-zavorrati"), ("C", "dip-zavorrati"),
+                     ("A", "trazioni-prona")):
+        assert L.kg_step(get(sid, eid)) == 1, eid
     assert L.kg_step(get("A", "stacco-rumeno-1-gamba-kb")) == 4
-    assert L.kg_step(get("C", "trazioni-zavorrate-prona")) == 1
-    assert L.kg_step(get("A", "trazioni-prona")) == 1
-    assert L.kg_step({**get("A", "back-squat"), "kgStep": 5}) == 5
+    assert L.kg_step({**get("A", "back-squat"), "kgStep": 10}) == 10
     d = L.new_draft(plan, "A", [], week=1, day=date(2026, 10, 19), now_ms=T0)
     assert L.find_ex(d, "A-circuit:suitcase-carry-kb")["kgStep"] == 4
+    assert L.find_ex(d, "A-superset-a:back-squat")["kgStep"] == 5
+
+
+def test_kg_step_default_without_plan_field(plan):
+    """Piani salvati senza 'kgStep': il passo si ricava dal tipo di attrezzo."""
+    get = lambda s, e: {k: v for k, v in P.find_exercise(plan, s, e)[1].items() if k != "kgStep"}
+    assert L.kg_step(get("A", "back-squat")) == 5
+    assert L.kg_step(get("B", "stacco-da-terra")) == 5
+    assert L.kg_step(get("A", "panca-inclinata-bilanciere")) == 5
+    assert L.kg_step(get("B", "military-press")) == 5
+    assert L.kg_step(get("C", "affondi-bulgari-bilanciere")) == 5
+    assert L.kg_step({"id": "front-squat", "name": "Front squat", "startingLoadKg": 70}) == 5
+    assert L.kg_step(get("C", "trazioni-zavorrate-prona")) == 1
+    assert L.kg_step(get("C", "push-up-zavorrati")) == 1
+    assert L.kg_step(get("C", "dip-zavorrati")) == 1
+    assert L.kg_step(get("A", "trazioni-neutra")) == 1
+    assert L.kg_step(get("A", "suitcase-carry-kb")) == 4
+    assert L.kg_step(get("A", "kettlebell-swing")) == 4
+    assert L.kg_step({"id": "x", "name": "Manubri", "startingLoadKg": 10}) == 2.5
+    assert L.kg_step({"id": "x", "name": "Squat", "equipment": "barbell"}) == 5
+
+
+def test_round_kg():
+    assert P.round_kg(102.5, 5) == 100      # a metà strada scende
+    assert P.round_kg(103, 5) == 105
+    assert P.round_kg(101, 5) == 100
+    assert P.round_kg(100, 5) == 100
+    assert P.round_kg(8.4, 1) == 8
+    assert P.round_kg(None, 5) is None
+    assert P.round_kg(14, 4, "kettlebell") == 14  # kettlebell: pesi fissi, non si arrotonda
+
+
+def test_prefill_rounds_to_step(plan):
+    """Precompilazione da una seduta con 102,5 kg (vecchio passo 2,5) → multiplo di 5."""
+    l1 = mk_log(plan, "A", "2026-10-19", {"back-squat": [(102.5, 5), (107.5, 4)]})
+    d = L.new_draft(plan, "A", [l1], week=1, day=date(2026, 10, 26), now_ms=T0)
+    sq = L.find_ex(d, "A-superset-a:back-squat")
+    assert [s["kg"] for s in sq["sets"]] == [100, 105, 105, 105]
+    assert sq["sets"][0]["prev"] == {"kg": 102.5, "reps": 5}  # il "precedente" resta quello vero
+    l2 = mk_log(plan, "C", "2026-10-23", {"trazioni-zavorrate-prona": [(8, 4)] * 4})
+    d2 = L.new_draft(plan, "C", [l2], week=1, day=date(2026, 10, 30), now_ms=T0)
+    assert [s["kg"] for s in L.find_ex(d2, "C-vest:trazioni-zavorrate-prona")["sets"]] == [8] * 4
+
+
+def test_suggestion_rounds_to_step(plan):
+    l1 = mk_log(plan, "C", "2026-10-23", {"affondi-bulgari-bilanciere": [(22.5, 12)] * 3})
+    s = L.suggest_progression(plan, "C", "affondi-bulgari-bilanciere", [l1])
+    assert s["suggestKg"] == 30 and s["short"] == "Prova 30 kg"   # 22,5 + 10 = 32,5 → 30
+    l2 = mk_log(plan, "A", "2026-10-19", {"back-squat": [(100, 6), (100, 5), (100, 5), (100, 4)]})
+    assert L.suggest_progression(plan, "A", "back-squat", [l2])["short"].startswith("Resta a 100 kg")
 
 
 def test_warmup_rounds(plan):

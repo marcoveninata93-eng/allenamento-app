@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import re
 from datetime import date
 from pathlib import Path
@@ -108,6 +109,94 @@ def metric_kind(ex: dict) -> str:
     if unit == "rip" and ex.get("startingLoadKg") not in (None, 0):
         return "strength"
     return "reps_at_load"
+
+
+# ---------------------------------------------------------------- attrezzo e passo dei kg
+BARBELL_STEP = 5.0      # niente dischi da 2,5: il bilanciere sale/scende di 5 kg
+KETTLEBELL_STEP = 4.0   # le kettlebell vanno di 4 in 4 (8, 12, 16…)
+WEIGHTED_STEP = 1.0     # giubbotto e zavorra
+OTHER_STEP = 2.5
+_KB_RE = re.compile(r"(^|[\s-])kb($|[\s-])|kettlebell")
+_BARBELL_RE = re.compile(r"bilanciere|barbell|back[\s-]squat|front[\s-]squat|stacco[\s-]da[\s-]terra|military|"
+                         r"panca[\s-](piana|inclinata)|bench")
+
+
+def equipment(ex: dict) -> str:
+    """Tipo di attrezzo: campo 'equipment' del piano, altrimenti ricavato da id/nome/campi.
+    'vest' (giubbotto), 'bodyweight' (corpo libero/zavorra), 'kettlebell', 'barbell', 'other'."""
+    if ex.get("equipment"):
+        return str(ex["equipment"])
+    txt = f"{ex.get('id', '')} {ex.get('name', '')}".lower()
+    if ex.get("loadFrom") == "giubbotto":
+        return "vest"
+    if ex.get("bodyweight") or "zavorrat" in txt:
+        return "bodyweight"
+    if _KB_RE.search(txt):
+        return "kettlebell"
+    if _BARBELL_RE.search(txt) or ex.get("warmupSets"):
+        return "barbell"
+    return "other"
+
+
+def default_kg_step(ex: dict) -> float:
+    return {"barbell": BARBELL_STEP, "kettlebell": KETTLEBELL_STEP, "vest": WEIGHTED_STEP,
+            "bodyweight": WEIGHTED_STEP}.get(equipment(ex), OTHER_STEP)
+
+
+def kg_step(ex: dict) -> float:
+    """Passo dei tasti ±kg: campo 'kgStep' del piano, altrimenti default per attrezzo."""
+    try:
+        v = float(ex.get("kgStep") or 0)
+    except (TypeError, ValueError):
+        v = 0
+    return v if v > 0 else default_kg_step(ex)
+
+
+def round_kg(kg: float | int | None, step: float, kind: str | None = None) -> float | int | None:
+    """Arrotonda al multiplo del passo più vicino (a metà strada scende: più prudente).
+    Le kettlebell non si arrotondano (sono pesi fissi)."""
+    if kg is None or not step or step <= 0 or kind == "kettlebell":
+        return kg
+    try:
+        f = float(kg)
+    except (TypeError, ValueError):
+        return kg
+    r = math.ceil(round(f / step, 6) - 0.5) * step
+    r = round(r, 2)
+    return int(r) if float(r).is_integer() else r
+
+
+# ---------------------------------------------------------------- migrazione piani salvati
+_SHEET_REF = re.compile(r"[^.]*\bfoglio\s+'[^']*'[^.]*\.\s*")
+
+
+def strip_sheet_refs(text: str | None) -> str | None:
+    """Toglie i rimandi al vecchio foglio di calcolo ("foglio 'Carichi e Progressione'")."""
+    if not text or "foglio" not in text:
+        return text
+    return _SHEET_REF.sub("", text).strip()
+
+
+def migrate_plan(plan: dict, default: dict | None = None) -> dict:
+    """Completa un piano salvato (copia di plan_v1) con i campi nuovi presi dal piano predefinito,
+    senza toccare quello che l'utente ha cambiato: aggiunge 'cue' e 'kgStep' solo se mancano
+    (prima per seduta+blocco+esercizio, poi per exerciseId) e toglie i rimandi al foglio dalle note."""
+    if default is None:
+        default = load_default_plan()
+    p = copy.deepcopy(plan)
+    exact: dict[tuple, dict] = {}
+    by_id: dict[str, dict] = {}
+    for s, b, e in iter_exercises(default):
+        exact[(s["id"], b["id"], e["id"])] = e
+        by_id.setdefault(e["id"], e)
+    for s, b, e in iter_exercises(p):
+        src = exact.get((s["id"], b["id"], e.get("id"))) or by_id.get(e.get("id")) or {}
+        for field in ("cue", "kgStep"):
+            if field not in e and src.get(field) not in (None, ""):
+                e[field] = src[field]
+        if e.get("notes"):
+            e["notes"] = strip_sheet_refs(e["notes"])
+    return p
 
 
 # ---------------------------------------------------------------- trazioni / giubbotto
@@ -291,6 +380,9 @@ def validate_plan(plan: Any) -> list[str]:
                 load = e.get("startingLoadKg")
                 if load is not None and (not isinstance(load, (int, float)) or load < 0):
                     errors.append(f"{ew} ({e.get('name')}): 'startingLoadKg' deve essere un numero ≥ 0 o null.")
+                step = e.get("kgStep")
+                if step is not None and (not isinstance(step, (int, float)) or isinstance(step, bool) or step <= 0):
+                    errors.append(f"{ew} ({e.get('name')}): 'kgStep' deve essere un numero > 0.")
                 if "track" in e and not isinstance(e["track"], bool):
                     errors.append(f"{ew} ({e.get('name')}): 'track' deve essere true/false.")
     return errors
@@ -298,7 +390,7 @@ def validate_plan(plan: Any) -> list[str]:
 
 # ---------------------------------------------------------------- versioni
 EDITABLE_FIELDS = {
-    "name": str, "code": str, "setsText": str, "tempo": str, "rir": str, "rest": str, "notes": str,
+    "name": str, "code": str, "cue": str, "setsText": str, "tempo": str, "rir": str, "rest": str, "notes": str,
     "alternative": str, "videoUrl": str, "video": str, "repsUnit": str,
     "sets": int, "setsMax": int, "repsMin": int, "repsMax": int, "startingLoadKg": float, "kgStep": float,
     "track": bool, "phase": int, "painCheck": str,
@@ -335,7 +427,7 @@ def update_exercise(plan: dict, session_id: str, block_id: str, exercise_id: str
         else:
             clean[k] = str(v)
     found = False
-    shared = {"name", "notes", "alternative", "videoUrl", "video"}
+    shared = {"name", "cue", "notes", "alternative", "videoUrl", "video"}
     for s in p["sessions"]:
         for b in s["blocks"]:
             for e in b["exercises"]:

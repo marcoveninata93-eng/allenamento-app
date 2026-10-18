@@ -339,14 +339,19 @@ def render_block_exercise(plan: dict, d: dict, block: dict, ex_def: dict, videos
         return
     presc = ex.get("prescription") or {}
     with st.container(border=True):
-        U.exercise_header(ex_def, presc, used_alt=ex.get("usedAlternative"))
-        if ex_def.get("alternative") and ex_def["alternative"] != "-":
-            k = wk("alt", ex["key"])
-            init_widget(k, bool(ex.get("usedAlternative")))
-            st.toggle(f"Uso l'alternativa: {ex_def['alternative']}", key=k, on_change=cb_alt(ex["key"], k))
+        U.exercise_header(ex_def, presc, used_alt=ex.get("usedAlternative"), compact=True)
         sugg = L.suggest_progression(plan, d["sessionId"], ex["exerciseId"], S.logs()) if ex.get("sets") else None
         if sugg and not ex.get("usedAlternative"):
-            st.caption(("💡 " if sugg["kind"] == "increase" else "ℹ️ ") + "Suggerimento: " + sugg["text"])
+            st.caption(("💡 " if sugg["kind"] == "increase" else "ℹ️ ") + (sugg.get("short") or sugg["text"]))
+        has_alt = bool(ex_def.get("alternative")) and ex_def["alternative"] != "-"
+        with st.expander("ⓘ Dettagli", expanded=False):
+            U.exercise_details(ex_def, presc)
+            if sugg and not ex.get("usedAlternative"):
+                st.caption("Suggerimento: " + sugg["text"])
+            if has_alt:
+                k = wk("alt", ex["key"])
+                init_widget(k, bool(ex.get("usedAlternative")))
+                st.toggle("Uso l'alternativa", key=k, on_change=cb_alt(ex["key"], k))
         if ex.get("warmupSets"):
             labels = [f"{L.fmt_kg(w['kg'])}×{w['reps']}" for w in ex["warmupSets"]]
             k = wk("wu", ex["key"])
@@ -356,7 +361,7 @@ def render_block_exercise(plan: dict, d: dict, block: dict, ex_def: dict, videos
         if ex.get("sets"):
             T.set_logger(key=f"sl|{d['id']}|{ex['key']}", draft_id=d["id"], ex=ex,
                          synced_rev=int(ss.get("synced_rev", 0)), draft_rev=int(d.get("rev", 0)), settings=sett,
-                         rest_label=rest_next)
+                         rest_label=rest_next, kg_step=L.kg_step(ex_def))
         else:
             k = wk("done", ex["key"])
             init_widget(k, bool(ex.get("done")))

@@ -135,7 +135,7 @@ with tab2:
         st.info("Nessuna pesata registrata." + (f" Peso a inizio ciclo dal piano: {start} kg." if start else ""))
 
 with tab3:
-    st.caption("Come il foglio 'Monitoraggio settimanale': per ogni settimana di ciclo l'ultima esecuzione registrata.")
+    st.caption("Monitoraggio settimanale: per ogni settimana di ciclo l'ultima esecuzione registrata.")
     cols = {"back-squat": "Squat", "stacco-da-terra": "Stacco", "panca-inclinata-bilanciere": "Panca incl.",
             "military-press": "Military", "affondi-bulgari-bilanciere": "Bulgari"}
     weeks: dict[int, dict] = {}

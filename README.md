@@ -32,8 +32,8 @@ L'obiettivo principale è **non perdere mai i dati**, anche quando in palestra l
   con i tasti grandi **◀ Blocco / Blocco ▶** e l'indicatore 2/6.
 - Riga serie **Serie | Precedente | kg | rip | ✓**, precompilata con i valori dell'ultima volta della
   **stessa seduta** (A con A) e della stessa serie; la prima volta con il **minimo** del range di ripetizioni. Registrare una serie è **un tap su ✓**; per correggere ci
-  sono **±kg** (2,5 kg per il bilanciere, 4 kg per le kettlebell, 1 kg per giubbotto/zavorra, oppure il
-  campo `kgStep` del piano) e **±1 rip** (o si scrive il numero). Si può aggiungere una **serie extra** (es. la 5ª
+  sono **±kg** (5 kg per il bilanciere, 4 kg per le kettlebell, 1 kg per giubbotto/zavorra, oppure il
+  campo `kgStep` del piano; precompilazione e suggerimenti arrotondano allo stesso passo) e **±1 rip** (o si scrive il numero). Si può aggiungere una **serie extra** (es. la 5ª
   trazione) o toglierne una.
 - **Timer di recupero** che parte da solo dopo ✓ (durata presa dal piano, es. "60-90''" → 90 s), con
   −15 / +15 s, beep, vibrazione e lampeggio dello schermo a fine recupero. Si basa sull'orario di fine salvato
@@ -41,14 +41,16 @@ L'obiettivo principale è **non perdere mai i dati**, anche quando in palestra l
 - **Riscaldamento EMOM**: per ogni esercizio una spunta per giro (2 giri × 5); col timer a intervalli
   di 1' (facoltativo) i giri si spuntano da soli a fine minuto.
 - Serie di **avvicinamento** del bilanciere (vuoto×8, 60×5, 80×3) come spunte separate: non contano nel volume né nei record.
-- **Note tecniche** del piano sempre visibili; nota libera per esercizio (es. RIR reale) e note di seduta.
+- Sotto ogni esercizio solo la **prescrizione compatta** (es. "4 × 3-6 · RIR 2 · rec 60-90″ · tempo 2-1-1-0") e
+  l'**indicazione chiave** (`cue` del piano); note complete, carico e alternativa in **ⓘ Dettagli** (chiuso) e
+  nella pagina Piano. Nota libera per esercizio (es. RIR reale) e note di seduta.
 - **Alternativa** selezionabile (es. push-up al posto della panca): il log la segna con `usedAlternative`
   e non la mescola con i record dell'esercizio principale.
 - **Dolore spalla sinistra 0-10** sugli esercizi con controllo dolore (avviso se ≥ 4).
 - **Giubbotto** unico per la seduta C (precompilato dalla tabella trazioni della settimana) usato da
   trazioni zavorrate, push-up e dip.
-- **Tutorial video** dentro l'esercizio, caricato solo quando apri "▶ Tutorial" (nessun video caricato in
-  automatico), con link "Apri su YouTube" e ricerca di riserva.
+- **Tutorial video** dentro l'esercizio, caricato solo quando apri "▶ Tutorial" e avviato da solo (senza audio,
+  come richiede Chrome Android per l'autoplay; l'audio si attiva dal player), con link "Apri su YouTube" e ricerca di riserva.
 - **Suggerimento di progressione** dalle regole del piano (sempre un suggerimento, mai automatico) e avviso
   se un esercizio peggiora **2 sedute di fila** (stesso esercizio, stessa seduta, solo serie di lavoro).
 - A fine seduta: peso corporeo, energia 1-5, tennis/attività extra, note → **Termina e salva**.
@@ -169,6 +171,8 @@ pulsante per risvegliarla. I dati sono su GitHub, non si perdono.
   salvataggio (id esercizi stabili: minuscole, numeri e trattini; un id uguale in sedute diverse = stesso
   esercizio per grafici e precompilazione).
 - `data/plan_v1.json` nel repo del codice serve solo al primo avvio; le versioni successive vivono nel repo dati.
+  Ai piani salvati prima dei campi `cue` (indicazione chiave) e `kgStep` (passo ±kg) l'app aggiunge in lettura
+  i valori di `data/plan_v1.json` per esercizio, senza toccare le altre modifiche.
 - I video sono in `data/videos.json` (per `exerciseId` e per testo dell'alternativa); un link diretto
   inserito nel piano (campo "video") ha la precedenza.
 

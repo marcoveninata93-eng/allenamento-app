@@ -13,7 +13,7 @@ _allen = components.declare_component("allen_web", path=str(_WEB))
 
 
 def set_logger(*, key: str, draft_id: str, ex: dict, synced_rev: int, draft_rev: int, settings: dict,
-               rest_label: str = "") -> dict | None:
+               rest_label: str = "", kg_step: float | None = None) -> dict | None:
     sets = []
     ack = {}
     for s in ex.get("sets", []):
@@ -23,11 +23,12 @@ def set_logger(*, key: str, draft_id: str, ex: dict, synced_rev: int, draft_rev:
             ack[str(s["n"])] = int(s["t"])
     presc = ex.get("prescription") or {}
     mode = ex.get("kgMode", "free")
+    step = kg_step or ex.get("kgStep") or (1.0 if mode in ("bw", "vest") else 2.5)
     if ex.get("usedAlternative") and mode == "vest":
-        mode = "bw"
+        mode, step = "bw", 1.0
     return _allen(
         mode="sets", draftId=draft_id, exKey=ex["key"], sets=sets, ackT=ack, synced=draft_rev <= synced_rev,
-        kgMode=mode, kgStep=float(ex.get("kgStep") or (1.0 if mode in ("bw", "vest") else 2.5)), unit=presc.get("repsUnit") or "rip",
+        kgMode=mode, kgStep=float(step), unit=presc.get("repsUnit") or "rip",
         restSec=presc.get("restSec"), restLabel=rest_label, sound=settings.get("sound", True),
         vibrate=settings.get("vibrate", True), wakeLock=settings.get("wakeLock", True),
         key=key, default=None,
