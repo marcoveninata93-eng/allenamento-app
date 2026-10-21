@@ -250,3 +250,13 @@ vecchia navigazione automatica di Streamlit (pagine aperte senza login né CSS).
   il resto è fatto di widget Streamlit con CSS, quindi alcune misure (spaziature, testo delle linguette, icone
   Material dei pulsanti al posto delle icone "Linea") differiscono un po'. Le icone "Linea" della barra in basso
   sono maschere CSS sui link di Streamlit.
+
+## App sempre sveglia
+
+Streamlit Community Cloud mette in pausa le app gratuite dopo circa 12 ore senza visite.
+Il workflow `.github/workflows/keepalive.yml` apre l'app ogni 3 ore con un browser
+(`scripts/keepalive.py`) e la risveglia se la trova in pausa. Si può lanciare anche a mano da
+GitHub → **Actions** → *Tieni sveglia l'app* → **Run workflow**.
+
+GitHub sospende i workflow pianificati dei repo pubblici dopo 60 giorni senza modifiche al repo:
+in quel caso manda un'email e basta riattivarlo dalla stessa pagina Actions.
